@@ -1,0 +1,15 @@
+
+
+### STORAGE ###
+sqlite:
+  - enabled: false
+
+onlinedb:
+  - enabled: true
+  - driver:
+  - port:
+  - username:
+  - password:
+
+yaml:
+  - enabled: false

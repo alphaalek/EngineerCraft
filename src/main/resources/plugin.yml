@@ -1,0 +1,7 @@
+name: EngineerCraft
+version: ${project.version}
+main: me.alek.EngineerCraft
+api-version: 1.19
+authors: [ Alek05 ]
+commands:
+  create:
