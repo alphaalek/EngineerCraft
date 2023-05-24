@@ -1,11 +1,10 @@
 package me.alek.mechanics.profiles;
 
 import me.alek.hub.Hub;
-import me.alek.mechanics.Mechanic;
 import me.alek.mechanics.Unit;
-import me.alek.mechanics.UnitTracker;
+import me.alek.mechanics.tracker.Tracker;
+import me.alek.mechanics.structures.IStructure;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 
 public interface UnitProfile<U extends Unit> {
 
@@ -17,5 +16,7 @@ public interface UnitProfile<U extends Unit> {
 
     boolean isMechanic();
 
-    U createUnit(Hub hub, Location location, UnitTracker<U> tracker);
+    IStructure getStructure();
+
+    U createUnit(Hub hub, Location location, Location signLocation, Tracker<? extends Unit> tracker);
 }

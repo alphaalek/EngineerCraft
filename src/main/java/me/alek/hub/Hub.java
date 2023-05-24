@@ -5,8 +5,11 @@ import me.alek.exceptions.NoSuchProfile;
 import me.alek.mechanics.Unit;
 import me.alek.mechanics.UnitFactory;
 import me.alek.mechanics.UnitLibrary;
-import me.alek.mechanics.UnitTracker;
+import me.alek.mechanics.tracker.TrackerWrapper;
+import me.alek.mechanics.tracker.wrappers.MechanicTracker;
+import me.alek.mechanics.tracker.Tracker;
 import me.alek.mechanics.profiles.UnitProfile;
+import me.alek.mechanics.tracker.wrappers.WorkerMechanicTracker;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -20,7 +23,7 @@ public class Hub {
     private final Set<UUID> members = new HashSet<>();
     private final Set<Player> onlinePlayers = new HashSet<>();
 
-    private final HashMap<Integer, UnitTracker<? extends Unit>> trackers = new HashMap<>();
+    private final HashMap<Integer, Tracker<? extends Unit>> trackers = new HashMap<>();
 
     public Hub(int id, UUID owner) {
         this.owner = owner;
@@ -52,25 +55,46 @@ public class Hub {
         onlinePlayers.remove(player);
     }
 
-    public <U extends Unit> Unit createUnit(Location location, String name) throws NoSuchProfile, AlreadyExistingUnit {
+    public <U extends Unit> Unit createUnit(Location location, String name, boolean buildStructure) throws NoSuchProfile, AlreadyExistingUnit {
         final UnitProfile<U> profile = UnitLibrary.getProfileByName(name);
-        return createUnit(location, profile);
+        return createUnit(location, profile, buildStructure);
     }
 
-    public <U extends Unit> Unit createUnit(Location location, int id) throws NoSuchProfile, AlreadyExistingUnit {
+    public <U extends Unit> Unit createUnit(Location location, int id, boolean buildStructure) throws NoSuchProfile, AlreadyExistingUnit {
         final UnitProfile<U> profile = UnitLibrary.getProfileById(id);
-        return createUnit(location, profile);
+        return createUnit(location, profile, buildStructure);
     }
 
-    public <U extends Unit> Unit createUnit(Location location, UnitProfile<U> profile) throws AlreadyExistingUnit {
+    public <U extends Unit> Unit createUnit(Location location, UnitProfile<U> profile, boolean buildStructure) throws AlreadyExistingUnit {
+        final Tracker<? extends Unit> tracker;
         if (!trackers.containsKey(profile.getId())) {
-            trackers.put(profile.getId(), new UnitTracker<U>(this));
+            if (profile.isWorker()) {
+                tracker = new Tracker<>(this, TrackerWrapper.Wrappers.WORKER_MECHANIC.getWrapper());
+            }
+            else if (profile.isMechanic()) {
+                tracker = new Tracker<>(this, TrackerWrapper.Wrappers.MECHANIC.getWrapper());
+            }
+            else {
+                tracker = new Tracker<>(this, TrackerWrapper.Wrappers.UNIT.getWrapper());
+            }
+            tracker.setup();
+            trackers.put(profile.getId(), tracker);
+        } else {
+            tracker = trackers.get(profile.getId());
         }
-        final UnitTracker<U> tracker = (UnitTracker<U>) trackers.get(profile.getId());
-        if (tracker.hasTrackerAtLocation(location)) {
-            throw new AlreadyExistingUnit();
+        location = location.getBlock().getLocation();
+
+        for (Tracker<?> unitTracker : trackers.values()) {
+            if (unitTracker.hasTrackerAtLocation(location)) {
+                throw new AlreadyExistingUnit();
+            }
         }
-        return UnitFactory.createUnit(this, location, profile, tracker);
+        final Unit unit = UnitFactory.createUnit(this, location, profile, tracker);
+
+        if (buildStructure) {
+            unit.getProfile().getStructure().load(location);
+        }
+        return unit;
     }
 
     public int getId() {

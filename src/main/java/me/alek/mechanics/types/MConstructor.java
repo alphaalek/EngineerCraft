@@ -14,11 +14,13 @@ public class MConstructor implements WorkerMechanic {
 
     private final Hub hub;
     private final Location location;
+    private final Location signLocation;
     private boolean working = false;
 
-    public MConstructor(Hub hub, Location location) {
+    public MConstructor(Hub hub, Location location, Location signLocation) {
         this.hub = hub;
         this.location = location;
+        this.signLocation = signLocation;
     }
 
     @Override
@@ -45,6 +47,11 @@ public class MConstructor implements WorkerMechanic {
     @Override
     public Location getLocation() {
         return location;
+    }
+
+    @Override
+    public Location getSignLocation() {
+        return signLocation;
     }
 
     @Override

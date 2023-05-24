@@ -12,11 +12,13 @@ public class MSmelter implements WorkerMechanic {
 
     private final Hub hub;
     private final Location location;
+    private final Location signLocation;
     private boolean working = false;
 
-    public MSmelter(Hub hub, Location location) {
+    public MSmelter(Hub hub, Location location, Location signLocation) {
         this.hub = hub;
         this.location = location;
+        this.signLocation = signLocation;
     }
 
     @Override
@@ -57,5 +59,10 @@ public class MSmelter implements WorkerMechanic {
     @Override
     public void out() {
 
+    }
+
+    @Override
+    public Location getSignLocation() {
+        return signLocation;
     }
 }

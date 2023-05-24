@@ -1,13 +1,16 @@
 package me.alek.mechanics.profiles;
 
 import me.alek.hub.Hub;
+import me.alek.mechanics.Unit;
 import me.alek.mechanics.UnitFactory;
-import me.alek.mechanics.UnitTracker;
+import me.alek.mechanics.tracker.wrappers.MechanicTracker;
+import me.alek.mechanics.tracker.Tracker;
+import me.alek.mechanics.structures.Structure;
+import me.alek.mechanics.structures.Structures;
 import me.alek.mechanics.types.MMiner;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 
-public class MinerProfile implements WorkerMechanicProfile<MMiner> {
+public class MinerProfile implements MechanicProfile<MMiner> {
 
     @Override
     public String getName() {
@@ -30,8 +33,13 @@ public class MinerProfile implements WorkerMechanicProfile<MMiner> {
     }
 
     @Override
-    public MMiner createUnit(Hub hub, Location location, UnitTracker<MMiner> tracker) {
-        return UnitFactory.createMiner(hub, location, tracker);
+    public Structure getStructure() {
+        return Structures.MINER.getStructure();
+    }
+
+    @Override
+    public MMiner createUnit(Hub hub, Location location, Location signLocation, Tracker<? extends Unit> tracker) {
+        return UnitFactory.createMiner(hub, location, signLocation, (Tracker<MMiner>) tracker);
     }
 
 }
