@@ -1,5 +1,6 @@
 package me.alek.mechanics.structures;
 
+import me.alek.utils.FacingUtils;
 import net.minecraft.server.v1_8_R3.BlockPosition;
 import net.minecraft.server.v1_8_R3.EnumDirection;
 import org.bukkit.Location;
@@ -15,7 +16,8 @@ import org.bukkit.material.MaterialData;
 
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class Pillar {
@@ -54,19 +56,6 @@ public class Pillar {
         }
      }
 
-     private static byte getLeverBlockFaceData(BlockFace blockFace) {
-        switch (blockFace) {
-            case EAST:
-                return 1;
-            case WEST:
-                return 2;
-            case SOUTH:
-                return 3;
-            default:
-                return 4;
-        }
-     }
-
     private static class BlockDataBuilder {
 
         private static BlockDataBuilder of(Material material) {
@@ -85,7 +74,7 @@ public class Pillar {
         }
 
         private BlockDataBuilder setDirectionConsumer(BlockFace direction, boolean callback, Supplier<Directional> supplier) {
-            blockData.setDirectionConsumer(block -> {
+            blockData.setDirectionConsumer((blockFaceRotation, block) -> {
                 if (direction == null) {
                     return;
                 }
@@ -93,7 +82,12 @@ public class Pillar {
                 if (callback) {
                     directional = supplier.get();
                     if (directional instanceof Lever) {
-                        block.setData(getLeverBlockFaceData(direction));
+                        block.setData(FacingUtils.getLeverBlockFaceData(blockFaceRotation.apply(direction)));
+                        block.getState().update();
+                        return;
+                    }
+                    if (directional instanceof org.bukkit.material.Sign) {
+                        block.setData(FacingUtils.getSignBlockFaceData(blockFaceRotation.apply(direction)));
                         block.getState().update();
                         return;
                     }
@@ -103,7 +97,7 @@ public class Pillar {
                 if (directional == null) {
                     return;
                 }
-                directional.setFacingDirection(direction);
+                directional.setFacingDirection(blockFaceRotation.apply(direction));
 
                 block.setData(((MaterialData) directional).getData());
                 block.getState().update();
@@ -141,13 +135,21 @@ public class Pillar {
         return this;
     }
 
-    public Map<Integer, BlockData> loadBlocks(final Location location) {
-        loadBlocks(location, blocks);
+    public Map<Integer, BlockData> loadBlocks(Function<BlockFace, BlockFace> blockFaceRotation, final Location location) {
+        loadBlocks(blockFaceRotation, location, blocks);
 
         return vulnerableBlocks;
     }
 
+    public Map<Integer, BlockData> loadBlocks(final Location location) {
+        return loadBlocks((blockFace) -> blockFace, location);
+    }
+
     public static void loadBlocks(final Location location, Map<Integer, BlockData> blocks) {
+        loadBlocks((blockFace) -> blockFace, location, blocks);
+    }
+
+    public static void loadBlocks(Function<BlockFace, BlockFace> blockFaceRotation, final Location location, Map<Integer, BlockData> blocks) {
         final World world = location.getWorld();
         if (world == null) {
             return;
@@ -163,7 +165,7 @@ public class Pillar {
 
             block.setType(entry.getValue().getMaterial());
             if (blockData.getDirectionConsumer() != null) {
-                blockData.getDirectionConsumer().accept(block);
+                blockData.getDirectionConsumer().accept(blockFaceRotation, block);
             }
 
             if (blockData.getData() != 0) {
@@ -202,7 +204,7 @@ public class Pillar {
         private final Material material;
 
         private byte data = (byte) 0;
-        private Consumer<Block> directionConsumer;
+        private BiConsumer<Function<BlockFace, BlockFace>, Block> directionConsumer;
         private boolean directionVulnerable;
 
         public BlockData(Material material) {
@@ -221,11 +223,11 @@ public class Pillar {
             this.data = data;
         }
 
-        public void setDirectionConsumer(Consumer<Block> directionConsumer) {
+        public void setDirectionConsumer(BiConsumer<Function<BlockFace, BlockFace>, Block> directionConsumer) {
             this.directionConsumer = directionConsumer;
         }
 
-        public Consumer<Block> getDirectionConsumer() {
+        public BiConsumer<Function<BlockFace, BlockFace>, Block> getDirectionConsumer() {
             return directionConsumer;
         }
 

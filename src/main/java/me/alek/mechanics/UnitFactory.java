@@ -9,16 +9,28 @@ import me.alek.mechanics.types.MConstructor;
 import me.alek.mechanics.types.MConveyor;
 import me.alek.mechanics.types.MMiner;
 import me.alek.mechanics.types.MSmelter;
+import me.alek.utils.FacingUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.block.BlockFace;
+import org.bukkit.util.Vector;
+
+import java.util.function.Function;
 
 public class UnitFactory {
 
-    public static Unit createUnit(Hub hub, Location location, UnitProfile<? extends Unit> profile, Tracker<? extends Unit> tracker) {
+    public static Unit createUnit(Hub hub, Location location, BlockFace direction, UnitProfile<? extends Unit> profile, Tracker<? extends Unit> tracker) {
         Location signLocation = null;
         final IStructure structure = profile.getStructure();
+
         if (profile.getStructure() instanceof IMechanicStructure) {
+
             final IMechanicStructure mechanicStructure = (IMechanicStructure) structure;
-            signLocation = location.clone().add(mechanicStructure.getSign().getVector());
+            final Function<Vector, Vector> rotateVectorFunction = FacingUtils.getRotateVectorFunction(direction);
+            final Vector originalVector = mechanicStructure.getSign().getVector();
+            final Vector rotatedVector = rotateVectorFunction.apply(originalVector);
+
+            signLocation = location.clone().add(rotatedVector.setY(originalVector.getY()));
         }
         Unit unit = profile.createUnit(hub, location, signLocation, tracker);
         tracker.addUnit(location, unit);

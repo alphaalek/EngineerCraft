@@ -20,7 +20,7 @@ public class MechanicTrackerEntry<M extends Mechanic> extends UnitTrackerEntry<M
 
     @Override
     public void tick(Set<Player> players) {
-        if (getCounter() > 10) {
+        if (getCounter() > 2) {
             local++;
             updateSign();
             resetCounter();

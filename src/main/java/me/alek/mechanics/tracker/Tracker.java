@@ -28,7 +28,7 @@ public class Tracker<U extends Unit> {
             public void run() {
                 tick();
             }
-        }.runTaskTimerAsynchronously(EngineerCraft.getInstance(), 0L, 1L);
+        }.runTaskTimerAsynchronously(EngineerCraft.getInstance(), 0L, 5L);
     }
 
     public void tick() {

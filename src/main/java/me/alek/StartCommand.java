@@ -7,6 +7,7 @@ import me.alek.hub.Hub;
 import me.alek.hub.HubManager;
 import me.alek.mechanics.Unit;
 import me.alek.utils.FacingUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -22,7 +23,7 @@ public class StartCommand implements CommandExecutor {
             return true;
         }
         final Player player = (Player) sender;
-        final Location location = player.getLocation().add(FacingUtils.getFacingVector((int) player.getLocation().getYaw()).multiply(2));
+        final Location location = player.getLocation().add(FacingUtils.getFacingVector((int) player.getLocation().getYaw()).clone().multiply(2));
 
         Unit unit;
         Hub hub;
@@ -33,7 +34,7 @@ public class StartCommand implements CommandExecutor {
             sender.sendMessage("Ny hub: " + hub.getId() + ", " + hub.getMembers());
         }
         try {
-            unit = hub.createUnit(location, args[0], true);
+            unit = hub.createUnit(location, FacingUtils.getFacingBlockFace((int) player.getLocation().getYaw()), args[0], true);
         } catch (AlreadyExistingUnit ex) {
             sender.sendMessage("Der eksisterer allerede en unit på den lokation!");
             return true;

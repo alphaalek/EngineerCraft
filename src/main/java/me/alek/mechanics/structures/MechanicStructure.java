@@ -46,12 +46,11 @@ public class MechanicStructure extends Structure implements IMechanicStructure {
                 break;
             }
         }
-        final Pillar signPillar;
         if (sameVector != null) {
-            signPillar = getPillars().get(sameVector).clearYOffset().addCallback(vector.getBlockY(), Material.WALL_SIGN, sign.getBlockFace(), org.bukkit.material.Sign::new);
+            getPillars().get(sameVector).clearYOffset().addCallback(vector.getBlockY(), Material.WALL_SIGN, sign.getBlockFace(), org.bukkit.material.Sign::new);
         } else {
-            signPillar = new Pillar().addCallback(vector.getBlockY(), Material.WALL_SIGN, sign.getBlockFace(), org.bukkit.material.Sign::new);
+            final Pillar signPillar = new Pillar().addCallback(vector.getBlockY(), Material.WALL_SIGN, sign.getBlockFace(), org.bukkit.material.Sign::new);
+            set(vector.getBlockX(), vector.getBlockZ(), signPillar);
         }
-        set(vector.getBlockX(), vector.getBlockZ(), signPillar);
     }
 }

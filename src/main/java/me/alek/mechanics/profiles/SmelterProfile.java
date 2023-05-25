@@ -3,10 +3,9 @@ package me.alek.mechanics.profiles;
 import me.alek.hub.Hub;
 import me.alek.mechanics.Unit;
 import me.alek.mechanics.UnitFactory;
-import me.alek.mechanics.tracker.wrappers.MechanicTracker;
-import me.alek.mechanics.tracker.Tracker;
 import me.alek.mechanics.structures.Structure;
 import me.alek.mechanics.structures.Structures;
+import me.alek.mechanics.tracker.Tracker;
 import me.alek.mechanics.types.MSmelter;
 import org.bukkit.Location;
 

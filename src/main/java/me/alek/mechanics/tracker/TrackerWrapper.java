@@ -1,12 +1,11 @@
 package me.alek.mechanics.tracker;
 
+import me.alek.mechanics.Mechanic;
 import me.alek.mechanics.Unit;
-import me.alek.mechanics.tracker.wrappers.MechanicTracker;
-import me.alek.mechanics.tracker.wrappers.UnitTracker;
-import me.alek.mechanics.tracker.wrappers.WorkerMechanicTracker;
-
-import java.util.ArrayList;
-import java.util.function.Function;
+import me.alek.mechanics.WorkerMechanic;
+import me.alek.mechanics.tracker.entries.MechanicTrackerEntry;
+import me.alek.mechanics.tracker.entries.UnitTrackerEntry;
+import me.alek.mechanics.tracker.entries.WorkerMechanicTrackerEntry;
 
 public interface TrackerWrapper<U extends Unit> {
 
@@ -25,6 +24,32 @@ public interface TrackerWrapper<U extends Unit> {
 
         public TrackerWrapper<? extends Unit> getWrapper() {
             return wrapper;
+        }
+    }
+
+    class WorkerMechanicTracker<WM extends WorkerMechanic> implements TrackerWrapper<WM> {
+
+        @Override
+        public TrackerEntry<WM> addUnit(Unit unit) {
+            return new WorkerMechanicTrackerEntry<>((WM) unit);
+        }
+
+    }
+
+    class MechanicTracker<M extends Mechanic> implements TrackerWrapper<M> {
+
+        @Override
+        public TrackerEntry<M> addUnit(Unit unit) {
+            return new MechanicTrackerEntry<>((M) unit);
+        }
+
+    }
+
+    class UnitTracker<U extends Unit> implements TrackerWrapper<U> {
+
+        @Override
+        public TrackerEntry<U> addUnit(Unit unit) {
+            return new UnitTrackerEntry<>((U) unit);
         }
     }
 }

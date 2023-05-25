@@ -5,15 +5,17 @@ import me.alek.exceptions.NoSuchProfile;
 import me.alek.mechanics.Unit;
 import me.alek.mechanics.UnitFactory;
 import me.alek.mechanics.UnitLibrary;
-import me.alek.mechanics.tracker.TrackerWrapper;
-import me.alek.mechanics.tracker.wrappers.MechanicTracker;
-import me.alek.mechanics.tracker.Tracker;
 import me.alek.mechanics.profiles.UnitProfile;
-import me.alek.mechanics.tracker.wrappers.WorkerMechanicTracker;
+import me.alek.mechanics.tracker.Tracker;
+import me.alek.mechanics.tracker.TrackerWrapper;
 import org.bukkit.Location;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 public class Hub {
 
@@ -55,17 +57,22 @@ public class Hub {
         onlinePlayers.remove(player);
     }
 
-    public <U extends Unit> Unit createUnit(Location location, String name, boolean buildStructure) throws NoSuchProfile, AlreadyExistingUnit {
+    public <U extends Unit> Unit createUnit(Location location, BlockFace direction, String name, boolean buildStructure) throws NoSuchProfile, AlreadyExistingUnit {
         final UnitProfile<U> profile = UnitLibrary.getProfileByName(name);
-        return createUnit(location, profile, buildStructure);
+        return createUnit(location, direction, profile, buildStructure);
     }
 
-    public <U extends Unit> Unit createUnit(Location location, int id, boolean buildStructure) throws NoSuchProfile, AlreadyExistingUnit {
+    public <U extends Unit> Unit createUnit(Location location, BlockFace direction, int id, boolean buildStructure) throws NoSuchProfile, AlreadyExistingUnit {
         final UnitProfile<U> profile = UnitLibrary.getProfileById(id);
-        return createUnit(location, profile, buildStructure);
+        return createUnit(location, direction, profile, buildStructure);
     }
 
-    public <U extends Unit> Unit createUnit(Location location, UnitProfile<U> profile, boolean buildStructure) throws AlreadyExistingUnit {
+    public <U extends Unit> Unit createUnit(Location location, BlockFace direction, UnitProfile<U> profile, boolean buildStructure) throws AlreadyExistingUnit {
+        for (Tracker<?> unitTracker : trackers.values()) {
+            if (unitTracker.hasTrackerAtLocation(location)) {
+                throw new AlreadyExistingUnit();
+            }
+        }
         final Tracker<? extends Unit> tracker;
         if (!trackers.containsKey(profile.getId())) {
             if (profile.isWorker()) {
@@ -84,15 +91,9 @@ public class Hub {
         }
         location = location.getBlock().getLocation();
 
-        for (Tracker<?> unitTracker : trackers.values()) {
-            if (unitTracker.hasTrackerAtLocation(location)) {
-                throw new AlreadyExistingUnit();
-            }
-        }
-        final Unit unit = UnitFactory.createUnit(this, location, profile, tracker);
-
+        final Unit unit = UnitFactory.createUnit(this, location, direction, profile, tracker);
         if (buildStructure) {
-            unit.getProfile().getStructure().load(location);
+            unit.getProfile().getStructure().load(location, direction);
         }
         return unit;
     }

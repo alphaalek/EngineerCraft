@@ -3,7 +3,6 @@ package me.alek.mechanics.structures;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
-import org.bukkit.material.Ladder;
 import org.bukkit.material.Lever;
 import org.bukkit.material.RedstoneTorch;
 
@@ -29,7 +28,7 @@ public class StructureFactory {
                 .addCallback(3, Material.REDSTONE_TORCH_OFF, BlockFace.WEST, RedstoneTorch::new));
         set(0, -1, new Pillar()
                 .addCallback(1, Material.LEVER, BlockFace.NORTH, Lever::new));
-        setSign(0, 2, -1, BlockFace.NORTH);
+        setSign(0, 2, -1, BlockFace.SOUTH);
         parseStructure(this);
     }};
 
