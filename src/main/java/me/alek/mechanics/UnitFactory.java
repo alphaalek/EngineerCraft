@@ -19,7 +19,7 @@ import java.util.function.Function;
 
 public class UnitFactory {
 
-    public static Unit createUnit(Hub hub, Location location, BlockFace direction, UnitProfile<? extends Unit> profile, Tracker<? extends Unit> tracker) {
+    public static Unit createUnit(Hub hub, Location location, BlockFace direction, UnitProfile<? extends Unit> profile, Tracker<? extends Unit> tracker, int level) {
         Location signLocation = null;
         final IStructure structure = profile.getStructure();
 
@@ -32,25 +32,25 @@ public class UnitFactory {
 
             signLocation = location.clone().add(rotatedVector.setY(originalVector.getY()));
         }
-        Unit unit = profile.createUnit(hub, location, signLocation, tracker);
+        Unit unit = profile.createUnit(hub, direction, location, signLocation, tracker, level);
         tracker.addUnit(location, unit);
         return unit;
     }
 
-    public static MConstructor createConstructor(Hub hub, Location location, Location signLocation, Tracker<MConstructor> tracker) {
-        MConstructor constructor = new MConstructor(hub, location, signLocation);
+    public static MConstructor createConstructor(Hub hub, BlockFace direction, Location location, Location signLocation, Tracker<MConstructor> tracker, int level) {
+        MConstructor constructor = new MConstructor(hub, direction, location, signLocation, level);
         tracker.addUnit(location, constructor);
         return constructor;
     }
 
-    public static MMiner createMiner(Hub hub, Location location, Location signLocation, Tracker<MMiner> tracker) {
-        MMiner miner = new MMiner(hub, location, signLocation);
+    public static MMiner createMiner(Hub hub, BlockFace direction, Location location, Location signLocation, Tracker<MMiner> tracker, int level) {
+        MMiner miner = new MMiner(hub, direction, location, signLocation, level);
         tracker.addUnit(location, miner);
         return miner;
     }
 
-    public static MSmelter createSmelter(Hub hub, Location location, Location signLocation, Tracker<MSmelter> tracker) {
-        MSmelter smelter = new MSmelter(hub, location, signLocation);
+    public static MSmelter createSmelter(Hub hub, BlockFace direction, Location location, Location signLocation, Tracker<MSmelter> tracker, int level) {
+        MSmelter smelter = new MSmelter(hub, direction, location, signLocation, level);
         tracker.addUnit(location, smelter);
         return smelter;
     }

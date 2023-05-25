@@ -11,29 +11,27 @@ import java.util.Set;
 public class MechanicTrackerEntry<M extends Mechanic> extends UnitTrackerEntry<M> {
 
     private final M mechanic;
-    private int local;
+    protected final Block signBlock;
 
     public MechanicTrackerEntry(M mechanic) {
         super(mechanic);
+        initSign();
+        this.signBlock = mechanic.getSignLocation().getWorld().getBlockAt(mechanic.getSignLocation());
         this.mechanic = mechanic;
     }
 
     @Override
     public void tick(Set<Player> players) {
-        if (getCounter() > 2) {
-            local++;
-            updateSign();
-            resetCounter();
-        }
+
     }
 
-    public void updateSign() {
-        Block block = mechanic.getSignLocation().getWorld().getBlockAt(mechanic.getSignLocation());
-        BlockState state = block.getState();
+    public void initSign() {
+        BlockState state = signBlock.getState();
         if (state instanceof Sign) {
             Sign sign = (Sign) state;
-            sign.setLine(0, mechanic.getProfile().getName());
-            sign.setLine(1, local + "");
+
+            sign.setLine(0, mechanic.getProfile().getName().toUpperCase());
+            sign.setLine(3, "Tryk her");
             sign.update();
         }
     }

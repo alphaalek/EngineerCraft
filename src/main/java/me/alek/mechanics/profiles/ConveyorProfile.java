@@ -8,6 +8,7 @@ import me.alek.mechanics.structures.Structure;
 import me.alek.mechanics.structures.Structures;
 import me.alek.mechanics.types.MConveyor;
 import org.bukkit.Location;
+import org.bukkit.block.BlockFace;
 
 public class ConveyorProfile implements UnitProfile<MConveyor> {
 
@@ -23,7 +24,7 @@ public class ConveyorProfile implements UnitProfile<MConveyor> {
 
     @Override
     public boolean isWorker() {
-        return true;
+        return false;
     }
 
     @Override
@@ -37,7 +38,7 @@ public class ConveyorProfile implements UnitProfile<MConveyor> {
     }
 
     @Override
-    public MConveyor createUnit(Hub hub, Location location, Location signLocation, Tracker<? extends Unit> tracker) {
+    public MConveyor createUnit(Hub hub, BlockFace direction, Location location, Location signLocation, Tracker<? extends Unit> tracker, int level) {
         return UnitFactory.createConveyor(hub, location, (Tracker<MConveyor>) tracker);
     }
 }

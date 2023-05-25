@@ -6,16 +6,15 @@ import me.alek.mechanics.Unit;
 import me.alek.mechanics.UnitFactory;
 import me.alek.mechanics.UnitLibrary;
 import me.alek.mechanics.profiles.UnitProfile;
+import me.alek.mechanics.structures.Plane;
 import me.alek.mechanics.tracker.Tracker;
 import me.alek.mechanics.tracker.TrackerWrapper;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class Hub {
 
@@ -25,6 +24,7 @@ public class Hub {
     private final Set<UUID> members = new HashSet<>();
     private final Set<Player> onlinePlayers = new HashSet<>();
 
+    private final HashMap<Chunk, List<Plane>> structurePlanes = new HashMap<>();
     private final HashMap<Integer, Tracker<? extends Unit>> trackers = new HashMap<>();
 
     public Hub(int id, UUID owner) {
@@ -91,7 +91,7 @@ public class Hub {
         }
         location = location.getBlock().getLocation();
 
-        final Unit unit = UnitFactory.createUnit(this, location, direction, profile, tracker);
+        final Unit unit = UnitFactory.createUnit(this, location, direction, profile, tracker, 1);
         if (buildStructure) {
             unit.getProfile().getStructure().load(location, direction);
         }

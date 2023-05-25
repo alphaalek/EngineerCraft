@@ -5,6 +5,7 @@ import me.alek.mechanics.Unit;
 import me.alek.mechanics.tracker.Tracker;
 import me.alek.mechanics.structures.IStructure;
 import org.bukkit.Location;
+import org.bukkit.block.BlockFace;
 
 public interface UnitProfile<U extends Unit> {
 
@@ -18,5 +19,5 @@ public interface UnitProfile<U extends Unit> {
 
     IStructure getStructure();
 
-    U createUnit(Hub hub, Location location, Location signLocation, Tracker<? extends Unit> tracker);
+    U createUnit(Hub hub, BlockFace direction, Location location, Location signLocation, Tracker<? extends Unit> tracker, int level);
 }

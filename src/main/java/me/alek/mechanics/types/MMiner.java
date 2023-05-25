@@ -7,19 +7,24 @@ import me.alek.mechanics.UnitLibrary;
 import me.alek.mechanics.WorkerMechanic;
 import me.alek.mechanics.profiles.UnitProfile;
 import org.bukkit.Location;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 
 public class MMiner implements WorkerMechanic {
 
     private final Hub hub;
+    private final BlockFace direction;
     private final Location location;
     private final Location signLocation;
     private boolean working = false;
+    private int level;
 
-    public MMiner(Hub hub, Location location, Location signLocation) {
+    public MMiner(Hub hub, BlockFace direction, Location location, Location signLocation, int level) {
         this.hub = hub;
         this.location = location;
         this.signLocation = signLocation;
+        this.direction = direction;
+        this.level = level;
     }
 
     @Override
@@ -47,8 +52,18 @@ public class MMiner implements WorkerMechanic {
     }
 
     @Override
+    public BlockFace getDirection() {
+        return direction;
+    }
+
+    @Override
     public Location getSignLocation() {
         return signLocation;
+    }
+
+    @Override
+    public int getLevel() {
+        return level;
     }
 
     @Override
