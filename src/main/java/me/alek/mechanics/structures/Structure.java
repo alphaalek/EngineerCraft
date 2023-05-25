@@ -2,6 +2,8 @@ package me.alek.mechanics.structures;
 
 import me.alek.EngineerCraft;
 import me.alek.utils.FacingUtils;
+import me.alek.utils.handshake.Handshake;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -35,8 +37,8 @@ public class Structure implements IStructure {
     }
 
     @Override
-    public void load(Location location, BlockFace direction) {
-        new StructureLoader(this, location.getBlock().getLocation(), direction).load();
+    public void load(Location location, BlockFace direction, Handshake doneLoading) {
+        new StructureLoader(this, location.getBlock().getLocation(), direction, doneLoading).load();
     }
 
     public void combineStructure(IStructure structure) {
@@ -51,23 +53,24 @@ public class Structure implements IStructure {
 
         private final Location location;
         private final Structure structure;
+        private final Handshake doneLoading;
 
         private final Function<Vector, Vector> vectorRotation;
         private final Function<BlockFace, BlockFace> blockFaceRotation;
 
         private HashMap<Vector, Map<Integer, Pillar.BlockData>> callbackBlocks = new HashMap<>();
 
-        public StructureLoader(Structure structure, final Location location, BlockFace direction) {
+        public StructureLoader(Structure structure, final Location location, BlockFace direction, Handshake doneLoading) {
             this.location = location;
             this.structure = structure;
+            this.doneLoading = doneLoading;
 
             this.vectorRotation = FacingUtils.getRotateVectorFunction(direction);
             this.blockFaceRotation = FacingUtils.getRotateBlockFaceFunction(BlockFace.SOUTH, direction);
         }
 
         private Location getLocation(Vector vector) {
-            final Vector reversedVector = vectorRotation.apply(vector);
-            return location.getWorld().getBlockAt(location.clone().add(reversedVector)).getLocation();
+            return FacingUtils.reverseVectorForLocation(location, vector, vectorRotation);
         }
 
         public void putCallback(Vector vector, Map<Integer, Pillar.BlockData> blocks) {
@@ -88,8 +91,9 @@ public class Structure implements IStructure {
                     for (Map.Entry<Vector, Map<Integer, Pillar.BlockData>> entry : callbackBlocks.entrySet()) {
                         Pillar.loadBlocks(blockFaceRotation, getLocation(entry.getKey()), entry.getValue());
                     }
+                    doneLoading.onResponse();
                 }
-            }.runTaskLater(EngineerCraft.getInstance(), 5L);
+            }.runTaskLater(EngineerCraft.getInstance(), 10L);
         }
     }
 

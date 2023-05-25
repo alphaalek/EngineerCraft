@@ -10,7 +10,7 @@ import me.alek.mechanics.types.MConveyor;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 
-public class ConveyorProfile implements UnitProfile<MConveyor> {
+public class ConveyorProfile implements BareUnitProfile<MConveyor> {
 
     @Override
     public String getName() {
@@ -38,7 +38,7 @@ public class ConveyorProfile implements UnitProfile<MConveyor> {
     }
 
     @Override
-    public MConveyor createUnit(Hub hub, BlockFace direction, Location location, Location signLocation, Tracker<? extends Unit> tracker, int level) {
+    public MConveyor createUnit(Hub hub, Location location, Tracker<? extends Unit> tracker) {
         return UnitFactory.createConveyor(hub, location, (Tracker<MConveyor>) tracker);
     }
 }

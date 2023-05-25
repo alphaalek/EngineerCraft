@@ -1,6 +1,7 @@
 package me.alek.utils;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;
 
@@ -131,6 +132,14 @@ public class FacingUtils {
         else {
             return (vector) -> new Vector(vector.getBlockZ(), 0, vector.getBlockX() * (-1));
         }
+    }
+
+    public static Location reverseVectorForLocation(Location location, Vector vector, Function<Vector, Vector> vectorRotation) {
+        return location.getWorld().getBlockAt(location.clone().add(reverseVectorForVector(vector, vectorRotation))).getLocation();
+    }
+
+    public static Vector reverseVectorForVector(Vector vector, Function<Vector, Vector> vectorRotation) {
+        return vectorRotation.apply(vector);
     }
 
     public static byte getLeverBlockFaceData(BlockFace blockFace) {

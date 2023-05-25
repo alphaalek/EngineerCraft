@@ -7,6 +7,7 @@ import me.alek.mechanics.structures.Structure;
 import me.alek.mechanics.structures.Structures;
 import me.alek.mechanics.tracker.Tracker;
 import me.alek.mechanics.types.MConstructor;
+import me.alek.utils.handshake.Handshake;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 
@@ -38,8 +39,8 @@ public class ConstructorProfile implements MechanicProfile<MConstructor> {
     }
 
     @Override
-    public MConstructor createUnit(Hub hub, BlockFace direction, Location location, Location signLocation, Tracker<? extends Unit> tracker, int level) {
-        return UnitFactory.createConstructor(hub, direction, location, signLocation, (Tracker<MConstructor>) tracker, level);
+    public MConstructor createUnit(Hub hub, BlockFace direction, Location location, Location signLocation, Tracker<? extends Unit> tracker, int level, Handshake doneLoading) {
+        return UnitFactory.createConstructor(hub, direction, location, signLocation, (Tracker<MConstructor>) tracker, level, doneLoading);
     }
 
 }

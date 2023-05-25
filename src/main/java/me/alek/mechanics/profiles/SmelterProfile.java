@@ -7,6 +7,7 @@ import me.alek.mechanics.structures.Structure;
 import me.alek.mechanics.structures.Structures;
 import me.alek.mechanics.tracker.Tracker;
 import me.alek.mechanics.types.MSmelter;
+import me.alek.utils.handshake.Handshake;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 
@@ -38,8 +39,8 @@ public class SmelterProfile implements MechanicProfile<MSmelter> {
     }
 
     @Override
-    public MSmelter createUnit(Hub hub, BlockFace direction, Location location, Location signLocation, Tracker<? extends Unit> tracker) {
-        return UnitFactory.createSmelter(hub, direction, location, signLocation, (Tracker<MSmelter>) tracker);
+    public MSmelter createUnit(Hub hub, BlockFace direction, Location location, Location signLocation, Tracker<? extends Unit> tracker, int level, Handshake doneLoading) {
+        return UnitFactory.createSmelter(hub, direction, location, signLocation, (Tracker<MSmelter>) tracker, level, doneLoading);
     }
 
 }

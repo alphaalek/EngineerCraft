@@ -1,10 +1,14 @@
 package me.alek.mechanics.tracker.entries;
 
+import me.alek.EngineerCraft;
 import me.alek.mechanics.Mechanic;
+import me.alek.mechanics.WorkerMechanic;
+import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Set;
 
@@ -15,9 +19,12 @@ public class MechanicTrackerEntry<M extends Mechanic> extends UnitTrackerEntry<M
 
     public MechanicTrackerEntry(M mechanic) {
         super(mechanic);
-        initSign();
         this.signBlock = mechanic.getSignLocation().getWorld().getBlockAt(mechanic.getSignLocation());
         this.mechanic = mechanic;
+
+        if (!(mechanic instanceof WorkerMechanic)) {
+            initSign();
+        }
     }
 
     @Override
@@ -32,6 +39,7 @@ public class MechanicTrackerEntry<M extends Mechanic> extends UnitTrackerEntry<M
 
             sign.setLine(0, mechanic.getProfile().getName().toUpperCase());
             sign.setLine(3, "Tryk her");
+
             sign.update();
         }
     }

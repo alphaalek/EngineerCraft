@@ -4,6 +4,8 @@ import me.alek.EngineerCraft;
 import me.alek.hub.Hub;
 import me.alek.mechanics.Unit;
 import me.alek.mechanics.tracker.entries.CommonTrackerEntry;
+import me.alek.utils.handshake.Handshake;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -42,6 +44,10 @@ public class Tracker<U extends Unit> {
 
     public void addUnit(Location location, Unit unit) {
         units.put(location, (CommonTrackerEntry<U>) trackerWrapper.addUnit(unit));
+    }
+
+    public void addUnit(Location location, Unit unit, Handshake handshake) {
+        handshake.addRequest(() -> units.put(location, (CommonTrackerEntry<U>) trackerWrapper.addUnit(unit)));
     }
 
     public boolean hasTrackerAtLocation(Location location) {

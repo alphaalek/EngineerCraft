@@ -1,13 +1,12 @@
 package me.alek;
 
-import me.alek.exceptions.AlreadyExistingUnit;
+import me.alek.exceptions.CantBuildUnit;
 import me.alek.exceptions.NoSuchHub;
 import me.alek.exceptions.NoSuchProfile;
 import me.alek.hub.Hub;
 import me.alek.hub.HubManager;
 import me.alek.mechanics.Unit;
 import me.alek.utils.FacingUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -35,11 +34,15 @@ public class StartCommand implements CommandExecutor {
         }
         try {
             unit = hub.createUnit(location, FacingUtils.getFacingBlockFace((int) player.getLocation().getYaw()), args[0], true);
-        } catch (AlreadyExistingUnit ex) {
-            sender.sendMessage("Der eksisterer allerede en unit på den lokation!");
+        } catch (CantBuildUnit ex) {
+            sender.sendMessage("Du er for tæt på en anden unit og kan derfor ikke bygge her!");
             return true;
         } catch (NoSuchProfile ex) {
             sender.sendMessage("Ingen unit profile eksisterer med navnet " + args[0]);
+            return true;
+        }
+        if (unit == null) {
+            sender.sendMessage("Fejl opstået ved oprettelse af unit.");
             return true;
         }
         sender.sendMessage("Ny unit: " + unit.getHub().getOwner() + ", " + unit.getLocation());

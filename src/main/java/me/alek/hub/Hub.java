@@ -1,6 +1,6 @@
 package me.alek.hub;
 
-import me.alek.exceptions.AlreadyExistingUnit;
+import me.alek.exceptions.CantBuildUnit;
 import me.alek.exceptions.NoSuchProfile;
 import me.alek.mechanics.Unit;
 import me.alek.mechanics.UnitFactory;
@@ -9,12 +9,18 @@ import me.alek.mechanics.profiles.UnitProfile;
 import me.alek.mechanics.structures.Plane;
 import me.alek.mechanics.tracker.Tracker;
 import me.alek.mechanics.tracker.TrackerWrapper;
+import me.alek.utils.FacingUtils;
+import me.alek.utils.Tuple2;
+import me.alek.utils.handshake.Handshake;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.function.Function;
 
 public class Hub {
 
@@ -24,7 +30,7 @@ public class Hub {
     private final Set<UUID> members = new HashSet<>();
     private final Set<Player> onlinePlayers = new HashSet<>();
 
-    private final HashMap<Chunk, List<Plane>> structurePlanes = new HashMap<>();
+    private final HashMap<Chunk, Plane> structurePlanes = new HashMap<>();
     private final HashMap<Integer, Tracker<? extends Unit>> trackers = new HashMap<>();
 
     public Hub(int id, UUID owner) {
@@ -57,23 +63,25 @@ public class Hub {
         onlinePlayers.remove(player);
     }
 
-    public <U extends Unit> Unit createUnit(Location location, BlockFace direction, String name, boolean buildStructure) throws NoSuchProfile, AlreadyExistingUnit {
+    public <U extends Unit> Unit createUnit(Location location, BlockFace direction, String name, boolean buildStructure) throws NoSuchProfile, CantBuildUnit {
         final UnitProfile<U> profile = UnitLibrary.getProfileByName(name);
         return createUnit(location, direction, profile, buildStructure);
     }
 
-    public <U extends Unit> Unit createUnit(Location location, BlockFace direction, int id, boolean buildStructure) throws NoSuchProfile, AlreadyExistingUnit {
+    public <U extends Unit> Unit createUnit(Location location, BlockFace direction, int id, boolean buildStructure) throws NoSuchProfile, CantBuildUnit {
         final UnitProfile<U> profile = UnitLibrary.getProfileById(id);
         return createUnit(location, direction, profile, buildStructure);
     }
 
-    public <U extends Unit> Unit createUnit(Location location, BlockFace direction, UnitProfile<U> profile, boolean buildStructure) throws AlreadyExistingUnit {
-        for (Tracker<?> unitTracker : trackers.values()) {
-            if (unitTracker.hasTrackerAtLocation(location)) {
-                throw new AlreadyExistingUnit();
+    public <U extends Unit> Unit createUnit(Location location, BlockFace direction, UnitProfile<U> profile, boolean buildStructure) throws CantBuildUnit {
+        if (buildStructure) {
+            if (!allowBuild(location, direction, profile)) {
+                throw new CantBuildUnit();
             }
         }
+        final Handshake doneLoading = new Handshake();
         final Tracker<? extends Unit> tracker;
+
         if (!trackers.containsKey(profile.getId())) {
             if (profile.isWorker()) {
                 tracker = new Tracker<>(this, TrackerWrapper.Wrappers.WORKER_MECHANIC.getWrapper());
@@ -89,13 +97,86 @@ public class Hub {
         } else {
             tracker = trackers.get(profile.getId());
         }
-        location = location.getBlock().getLocation();
 
-        final Unit unit = UnitFactory.createUnit(this, location, direction, profile, tracker, 1);
+        final Unit unit = UnitFactory.createUnitObject(this, location, direction, profile, tracker, 1, doneLoading);
+        if (unit == null) {
+            return null;
+        }
+
         if (buildStructure) {
-            unit.getProfile().getStructure().load(location, direction);
+            unit.getProfile().getStructure().load(location, direction, doneLoading);
         }
         return unit;
+    }
+
+    public <U extends Unit> boolean allowBuild(Location location, BlockFace direction, UnitProfile<U> profile) {
+        // param 1 = chunk wrapper, param 2 = plane der bliver bygget i den chunk
+        final HashMap<Plane, Plane> intersectedChunkWrappers = new HashMap<>();
+        final HashMap<Plane, List<Tuple2<Integer, Integer>>> addPoints = new HashMap<>();
+
+        if (!structurePlanes.containsKey(location.getChunk())) {
+            structurePlanes.put(location.getChunk(), new Plane());
+        }
+        final Plane sameChunkWrapper = structurePlanes.get(location.getChunk());
+        intersectedChunkWrappers.put(sameChunkWrapper, new Plane());
+
+        final Function<Vector, Vector> rotationVector = FacingUtils.getRotateVectorFunction(direction);
+
+        for (Vector relativeVector : profile.getStructure().getPillars().keySet()) {
+
+            final Vector rotatedVector = rotationVector.apply(relativeVector);
+            final Location vectorLocation = location.clone().add(rotatedVector);
+
+            final Plane chunkWrapper;
+            if (vectorLocation.getChunk() != location.getChunk()) {
+                if (!structurePlanes.containsKey(vectorLocation.getChunk())) {
+                    structurePlanes.put(vectorLocation.getChunk(), new Plane());
+                }
+                chunkWrapper = structurePlanes.get(vectorLocation.getChunk());
+                if (!intersectedChunkWrappers.containsKey(chunkWrapper)) {
+                    intersectedChunkWrappers.put(chunkWrapper, new Plane());
+                }
+            } else {
+                chunkWrapper = sameChunkWrapper;
+            }
+
+            intersectedChunkWrappers.get(chunkWrapper).addPoint(getChunkOffset(vectorLocation));
+
+            final List<Tuple2<Integer, Integer>> addPointsList;
+            if (!addPoints.containsKey(chunkWrapper)) {
+                addPointsList = addPoints.put(chunkWrapper, new ArrayList<>());
+            } else {
+                addPointsList = addPoints.get(chunkWrapper);
+            }
+            if (addPointsList == null) continue;
+            addPointsList.add(getChunkOffset(vectorLocation));
+        }
+        for (Map.Entry<Plane, Plane> intersectEntry : intersectedChunkWrappers.entrySet()) {
+            if (intersectEntry.getValue().intersect(intersectEntry.getKey())) {
+                return false;
+            }
+        }
+        for (Map.Entry<Plane, List<Tuple2<Integer, Integer>>> addPoint : addPoints.entrySet()) {
+            addPoint.getKey().addAll(addPoint.getValue());
+        }
+        return true;
+    }
+
+    private Tuple2<Integer, Integer> getChunkOffset(Location location) {
+        final int XChunkCoord = location.getBlockX() / 16;
+        final int ZChunkCoord = location.getBlockZ() / 16;
+
+        return modifyNegativeOffsets(new Tuple2<>(location.getBlockX() - (XChunkCoord * 16), location.getBlockZ() - (ZChunkCoord * 16)));
+    }
+
+    private Tuple2<Integer, Integer> modifyNegativeOffsets(Tuple2<Integer, Integer> offset) {
+        if (offset.getParam1() < 0) {
+            offset.setParam1(offset.getParam1() + 16);
+        }
+        if (offset.getParam2() < 0) {
+            offset.setParam2(offset.getParam2() + 16);
+        }
+        return offset;
     }
 
     public int getId() {

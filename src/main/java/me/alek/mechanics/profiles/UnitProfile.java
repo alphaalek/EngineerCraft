@@ -18,6 +18,4 @@ public interface UnitProfile<U extends Unit> {
     boolean isMechanic();
 
     IStructure getStructure();
-
-    U createUnit(Hub hub, BlockFace direction, Location location, Location signLocation, Tracker<? extends Unit> tracker, int level);
 }
