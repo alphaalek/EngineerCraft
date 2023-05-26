@@ -1,5 +1,6 @@
 package me.alek.mechanics.structures;
 
+import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -33,42 +34,55 @@ public class StructureFactory {
     }};
 
     public static MechanicStructure createMiner() {
-        final MechanicStructure miner = new MechanicStructure();
-        miner.set(0, 0, new Pillar()
-                .add(0, Material.HOPPER)
-                .add(1, Material.STAINED_CLAY, DyeColor.ORANGE.getData())
-                .add(1, Material.STAINED_CLAY, DyeColor.CYAN.getData())
-                .add(1, Material.CHEST, BlockFace.NORTH));
-        miner.combineStructure(defaultMechanicElements);
-        return miner;
+        return new MechanicStructure(){{
+            set(0, 0, new Pillar()
+                    .add(0, Material.HOPPER)
+                    .add(1, Material.STAINED_CLAY, DyeColor.CYAN.getData())
+                    .add(1, Material.STAINED_CLAY, DyeColor.YELLOW.getData())
+                    .add(1, Material.CHEST, BlockFace.NORTH)
+            );
+            combineStructure(defaultMechanicElements);
+        }};
     }
 
     public static MechanicStructure createSmelter() {
-        final MechanicStructure smelter = new MechanicStructure();
-        smelter.set(0, 0, new Pillar()
-                .add(0, Material.CAULDRON)
-                .add(1, Material.FURNACE, BlockFace.EAST)
-                .add(1, Material.STAINED_CLAY, DyeColor.CYAN.getData())
-                .add(1, Material.GLASS));
-        smelter.combineStructure(defaultMechanicElements);
-        return smelter;
+        return new MechanicStructure(){{
+            set(0, 0, new Pillar()
+                    .add(0, Material.CAULDRON)
+                    .add(1, Material.FURNACE, BlockFace.EAST)
+                    .add(1, Material.STAINED_CLAY, DyeColor.YELLOW.getData())
+                    .add(1, Material.GLASS)
+            );
+            combineStructure(defaultMechanicElements);
+        }};
     }
 
     public static MechanicStructure createConstructor() {
-        final MechanicStructure constructor = new MechanicStructure();
-        constructor.set(0, 0, new Pillar()
-                .add(0, Material.CAULDRON)
-                .add(1, Material.WORKBENCH)
-                .add(1, Material.STAINED_CLAY, DyeColor.CYAN.getData())
-                .add(1, Material.GLASS));
-        constructor.combineStructure(defaultMechanicElements);
-        return constructor;
+        return new MechanicStructure(){{
+            set(0, 0, new Pillar()
+                    .add(0, Material.CAULDRON)
+                    .add(1, Material.WORKBENCH)
+                    .add(1, Material.STAINED_CLAY, DyeColor.YELLOW.getData())
+                    .add(1, Material.GLASS)
+            );
+            combineStructure(defaultMechanicElements);
+        }};
     }
 
     public static Structure createConveyor() {
-        final MechanicStructure conveyor = new MechanicStructure();
-        conveyor.set(0, 0, new Pillar()
-                .add(1, Material.DAYLIGHT_DETECTOR));
-        return conveyor;
+        return new Structure(){{
+            set(0, 0, new Pillar()
+                    .add(1, Material.DAYLIGHT_DETECTOR)
+            );
+        }};
+    }
+
+    public static Structure createConveyorPole() {
+        return new Structure(){{
+            set(0, 0, new Pillar()
+                    .add(0, Material.ANVIL, BlockFace.SOUTH)
+                    .add(1, Material.DAYLIGHT_DETECTOR)
+            );
+        }};
     }
 }

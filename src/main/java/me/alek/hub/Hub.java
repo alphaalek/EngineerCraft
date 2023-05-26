@@ -1,6 +1,5 @@
 package me.alek.hub;
 
-import me.alek.exceptions.CantBuildUnit;
 import me.alek.exceptions.NoSuchProfile;
 import me.alek.mechanics.Unit;
 import me.alek.mechanics.UnitFactory;
@@ -10,8 +9,9 @@ import me.alek.mechanics.structures.Plane;
 import me.alek.mechanics.tracker.Tracker;
 import me.alek.mechanics.tracker.TrackerWrapper;
 import me.alek.utils.FacingUtils;
+import me.alek.utils.Handshake;
 import me.alek.utils.Tuple2;
-import me.alek.utils.handshake.Handshake;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
@@ -19,7 +19,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
 import java.util.function.Function;
 
 public class Hub {
@@ -63,22 +62,17 @@ public class Hub {
         onlinePlayers.remove(player);
     }
 
-    public <U extends Unit> Unit createUnit(Location location, BlockFace direction, String name, boolean buildStructure) throws NoSuchProfile, CantBuildUnit {
+    public <U extends Unit> Unit createUnit(Location location, BlockFace direction, String name, boolean buildStructure) throws NoSuchProfile {
         final UnitProfile<U> profile = UnitLibrary.getProfileByName(name);
         return createUnit(location, direction, profile, buildStructure);
     }
 
-    public <U extends Unit> Unit createUnit(Location location, BlockFace direction, int id, boolean buildStructure) throws NoSuchProfile, CantBuildUnit {
+    public <U extends Unit> Unit createUnit(Location location, BlockFace direction, int id, boolean buildStructure) throws NoSuchProfile {
         final UnitProfile<U> profile = UnitLibrary.getProfileById(id);
         return createUnit(location, direction, profile, buildStructure);
     }
 
-    public <U extends Unit> Unit createUnit(Location location, BlockFace direction, UnitProfile<U> profile, boolean buildStructure) throws CantBuildUnit {
-        if (buildStructure) {
-            if (!allowBuild(location, direction, profile)) {
-                throw new CantBuildUnit();
-            }
-        }
+    public <U extends Unit> Unit createUnit(Location location, BlockFace direction, UnitProfile<U> profile, boolean buildStructure) {
         final Handshake doneLoading = new Handshake();
         final Tracker<? extends Unit> tracker;
 
@@ -104,7 +98,7 @@ public class Hub {
         }
 
         if (buildStructure) {
-            unit.getProfile().getStructure().load(location, direction, doneLoading);
+            profile.getStructure().load(location, direction, doneLoading);
         }
         return unit;
     }
@@ -121,7 +115,6 @@ public class Hub {
         intersectedChunkWrappers.put(sameChunkWrapper, new Plane());
 
         final Function<Vector, Vector> rotationVector = FacingUtils.getRotateVectorFunction(direction);
-
         for (Vector relativeVector : profile.getStructure().getPillars().keySet()) {
 
             final Vector rotatedVector = rotationVector.apply(relativeVector);
@@ -139,16 +132,12 @@ public class Hub {
             } else {
                 chunkWrapper = sameChunkWrapper;
             }
-
             intersectedChunkWrappers.get(chunkWrapper).addPoint(getChunkOffset(vectorLocation));
 
-            final List<Tuple2<Integer, Integer>> addPointsList;
             if (!addPoints.containsKey(chunkWrapper)) {
-                addPointsList = addPoints.put(chunkWrapper, new ArrayList<>());
-            } else {
-                addPointsList = addPoints.get(chunkWrapper);
+                addPoints.put(chunkWrapper, new ArrayList<>());
             }
-            if (addPointsList == null) continue;
+            final List<Tuple2<Integer, Integer>> addPointsList = addPoints.get(chunkWrapper);
             addPointsList.add(getChunkOffset(vectorLocation));
         }
         for (Map.Entry<Plane, Plane> intersectEntry : intersectedChunkWrappers.entrySet()) {

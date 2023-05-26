@@ -1,6 +1,6 @@
 package me.alek.mechanics.structures;
 
-import me.alek.utils.handshake.Handshake;
+import me.alek.utils.Handshake;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;

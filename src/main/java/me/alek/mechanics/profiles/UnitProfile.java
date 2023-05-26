@@ -1,11 +1,8 @@
 package me.alek.mechanics.profiles;
 
-import me.alek.hub.Hub;
 import me.alek.mechanics.Unit;
-import me.alek.mechanics.tracker.Tracker;
 import me.alek.mechanics.structures.IStructure;
-import org.bukkit.Location;
-import org.bukkit.block.BlockFace;
+import org.bukkit.Material;
 
 public interface UnitProfile<U extends Unit> {
 
@@ -18,4 +15,6 @@ public interface UnitProfile<U extends Unit> {
     boolean isMechanic();
 
     IStructure getStructure();
+
+    Material getBlockType();
 }

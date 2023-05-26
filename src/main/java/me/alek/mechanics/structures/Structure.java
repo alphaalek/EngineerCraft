@@ -2,7 +2,7 @@ package me.alek.mechanics.structures;
 
 import me.alek.EngineerCraft;
 import me.alek.utils.FacingUtils;
-import me.alek.utils.handshake.Handshake;
+import me.alek.utils.Handshake;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
@@ -58,7 +58,7 @@ public class Structure implements IStructure {
         private final Function<Vector, Vector> vectorRotation;
         private final Function<BlockFace, BlockFace> blockFaceRotation;
 
-        private HashMap<Vector, Map<Integer, Pillar.BlockData>> callbackBlocks = new HashMap<>();
+        private final HashMap<Vector, Map<Integer, Pillar.BlockData>> callbackBlocks = new HashMap<>();
 
         public StructureLoader(Structure structure, final Location location, BlockFace direction, Handshake doneLoading) {
             this.location = location;

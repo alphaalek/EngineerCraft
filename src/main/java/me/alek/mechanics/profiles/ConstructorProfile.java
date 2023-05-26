@@ -7,8 +7,9 @@ import me.alek.mechanics.structures.Structure;
 import me.alek.mechanics.structures.Structures;
 import me.alek.mechanics.tracker.Tracker;
 import me.alek.mechanics.types.MConstructor;
-import me.alek.utils.handshake.Handshake;
+import me.alek.utils.Handshake;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 
 public class ConstructorProfile implements MechanicProfile<MConstructor> {
@@ -36,6 +37,11 @@ public class ConstructorProfile implements MechanicProfile<MConstructor> {
     @Override
     public Structure getStructure() {
         return Structures.CONSTRUCTOR.getStructure();
+    }
+
+    @Override
+    public Material getBlockType() {
+        return Material.WORKBENCH;
     }
 
     @Override

@@ -7,8 +7,9 @@ import me.alek.mechanics.structures.Structure;
 import me.alek.mechanics.structures.Structures;
 import me.alek.mechanics.tracker.Tracker;
 import me.alek.mechanics.types.MSmelter;
-import me.alek.utils.handshake.Handshake;
+import me.alek.utils.Handshake;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 
 public class SmelterProfile implements MechanicProfile<MSmelter> {
@@ -36,6 +37,11 @@ public class SmelterProfile implements MechanicProfile<MSmelter> {
     @Override
     public Structure getStructure() {
         return Structures.SMELTER.getStructure();
+    }
+
+    @Override
+    public Material getBlockType() {
+        return Material.FURNACE;
     }
 
     @Override

@@ -3,11 +3,13 @@ package me.alek.mechanics.profiles;
 import me.alek.hub.Hub;
 import me.alek.mechanics.Unit;
 import me.alek.mechanics.UnitFactory;
+import me.alek.mechanics.structures.IStructure;
 import me.alek.mechanics.tracker.Tracker;
 import me.alek.mechanics.structures.Structure;
 import me.alek.mechanics.structures.Structures;
 import me.alek.mechanics.types.MConveyor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 
 public class ConveyorProfile implements BareUnitProfile<MConveyor> {
@@ -33,8 +35,13 @@ public class ConveyorProfile implements BareUnitProfile<MConveyor> {
     }
 
     @Override
-    public Structure getStructure() {
+    public IStructure getStructure() {
         return Structures.CONVEYOR.getStructure();
+    }
+
+    @Override
+    public Material getBlockType() {
+        return Material.DAYLIGHT_DETECTOR;
     }
 
     @Override

@@ -5,7 +5,9 @@ public enum Structures {
     MINER(StructureFactory.createMiner()),
     SMELTER(StructureFactory.createSmelter()),
     CONSTRUCTOR(StructureFactory.createConstructor()),
-    CONVEYOR(StructureFactory.createConveyor());
+
+    CONVEYOR(StructureFactory.createConveyor()),
+    CONVEYOR_POLE(StructureFactory.createConveyorPole());
 
     private final Structure structure;
 

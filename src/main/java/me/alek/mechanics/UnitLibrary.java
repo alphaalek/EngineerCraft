@@ -11,7 +11,8 @@ public class UnitLibrary {
         MINER(1, new MinerProfile()),
         SMELTER(2, new SmelterProfile()),
         CONSTRUCTOR(3, new ConstructorProfile()),
-        CONVEYOR(4, new ConveyorProfile());
+        CONVEYOR(4, new ConveyorProfile()),
+        CONVEYOR_POLE(5, new ConveyorPoleProfile());
 
         private final UnitProfile<? extends Unit> profile;
         private final int id;
@@ -49,7 +50,7 @@ public class UnitLibrary {
 
     public static <U extends Unit> UnitProfile<U> getProfileByName(String name) throws NoSuchProfile {
         for (UnitProfile<? extends Unit> unitProfile : unitProfiles.values()) {
-            if (unitProfile.getName().equalsIgnoreCase(name)) {
+            if (unitProfile.getName().replaceAll(" ", "_").equalsIgnoreCase(name)) {
                 return (UnitProfile<U>) unitProfile;
             }
         }
