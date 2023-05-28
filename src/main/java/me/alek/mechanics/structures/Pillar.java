@@ -238,8 +238,8 @@ public class Pillar {
         return add(delta, BlockDataBuilder.of(material).setData(data).build());
     }
 
-    public Pillar add(int delta, Material material, BlockFace direction) {
-        return add(delta, BlockDataBuilder.of(material).setDirectionConsumer(direction, false, null).build());
+    public Pillar add(int delta, Material material, BlockFace direction, Supplier<?> directionalSupplier) {
+        return add(delta, BlockDataBuilder.of(material).setDirectionConsumer(direction, false, directionalSupplier).build());
     }
 
     public Pillar addCallback(int delta, Material material) {

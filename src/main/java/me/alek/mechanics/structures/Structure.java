@@ -1,22 +1,27 @@
 package me.alek.mechanics.structures;
 
 import me.alek.EngineerCraft;
-import me.alek.mechanics.structures.api.IStructure;
+import me.alek.mechanics.transporter.TransferLocation;
 import me.alek.utils.FacingUtils;
 import me.alek.utils.Handshake;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 public class Structure implements IStructure {
+
+    private boolean isTransporter;
+    private boolean isMechanic;
+
+    private Sign sign = new Sign(new Vector(0, 0, 0), BlockFace.NORTH);
+    private List<TransferLocation> inputLocations = new ArrayList<>();
+    private List<TransferLocation> outputLocations = new ArrayList<>();
 
     private final HashMap<Vector, Pillar> pillars = new HashMap<>();
     private final HashMap<Integer, Set<Integer>> knownOffsets = new HashMap<>();
@@ -24,6 +29,11 @@ public class Structure implements IStructure {
     @Override
     public HashMap<Vector, Pillar> getPillars() {
         return pillars;
+    }
+
+    @Override
+    public void load(@NotNull Location location, BlockFace direction, Handshake doneLoading) {
+        new StructureLoader(this, location.getBlock().getLocation(), direction, doneLoading).load();
     }
 
     public void set(int x, int y, Pillar pillar) {
@@ -35,11 +45,6 @@ public class Structure implements IStructure {
         }
         knownOffsets.get(x).add(y);
         pillars.put(new Vector(x, 0, y), pillar);
-    }
-
-    @Override
-    public void load(@NotNull Location location, BlockFace direction, Handshake doneLoading) {
-        new StructureLoader(this, location.getBlock().getLocation(), direction, doneLoading).load();
     }
 
     private boolean compareVector(@NotNull Vector vector1, @NotNull Vector vector2) {
@@ -72,7 +77,15 @@ public class Structure implements IStructure {
                 }
             }
         }
+
+        if (isMechanic) {
+            if (structure.isMechanic()) {
+                sign = structure.getSign();
+                changePillars();
+            }
+        }
     }
+
 
     public static class StructureLoader {
 
@@ -120,6 +133,51 @@ public class Structure implements IStructure {
                 }
             }.runTaskLater(EngineerCraft.getInstance(), 10L);
         }
+    }
+
+    public Sign getSign() {
+        return sign;
+    }
+
+    public void setSign(int x, int y, int z, BlockFace blockFace, boolean changePillars) {
+        sign = new Sign(new Vector(x, y, z), blockFace);
+        if (changePillars) {
+            changePillars();
+        }
+    }
+
+    public void changePillars() {
+        final Vector vector = sign.getVector();
+        Vector sameVector = null;
+
+        for (Vector mapVector : getPillars().keySet()) {
+            if (compareVector(vector, mapVector)) {
+                sameVector = mapVector;
+                break;
+            }
+        }
+        if (sameVector != null) {
+            getPillars().get(sameVector).clearYOffset().addCallback(vector.getBlockY(), Material.WALL_SIGN, sign.getBlockFace(), org.bukkit.material.Sign::new);
+        } else {
+            final Pillar signPillar = new Pillar().addCallback(vector.getBlockY(), Material.WALL_SIGN, sign.getBlockFace(), org.bukkit.material.Sign::new);
+            set(vector.getBlockX(), vector.getBlockZ(), signPillar);
+        }
+    }
+
+    public void setTransporter(boolean isTransporter) {
+        this.isTransporter = isTransporter;
+    }
+
+    public void setMechanic(boolean isMechanic) {
+        this.isMechanic = isMechanic;
+    }
+
+    public boolean isTransporter() {
+        return isTransporter;
+    }
+
+    public boolean isMechanic() {
+        return isMechanic;
     }
 
 }

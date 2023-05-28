@@ -3,14 +3,14 @@ package me.alek.mechanics.profiles;
 import me.alek.hub.Hub;
 import me.alek.mechanics.Unit;
 import me.alek.mechanics.UnitFactory;
-import me.alek.mechanics.structures.api.IStructure;
+import me.alek.mechanics.structures.IStructure;
 import me.alek.mechanics.tracker.Tracker;
 import me.alek.mechanics.structures.Structures;
-import me.alek.mechanics.types.MConveyor;
+import me.alek.mechanics.types.Conveyor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 
-public class ConveyorProfile implements BareUnitProfile<MConveyor> {
+public class ConveyorProfile implements BareUnitProfile<Conveyor> {
 
     @Override
     public String getName() {
@@ -43,7 +43,7 @@ public class ConveyorProfile implements BareUnitProfile<MConveyor> {
     }
 
     @Override
-    public MConveyor createUnit(Hub hub, Location location, Tracker<? extends Unit> tracker) {
-        return UnitFactory.createConveyor(hub, location, (Tracker<MConveyor>) tracker);
+    public Conveyor createUnit(Hub hub, Location location, Tracker<? extends Unit> tracker) {
+        return UnitFactory.createConveyor(hub, location, (Tracker<Conveyor>) tracker);
     }
 }

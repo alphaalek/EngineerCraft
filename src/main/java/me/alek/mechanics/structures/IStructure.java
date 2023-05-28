@@ -1,4 +1,4 @@
-package me.alek.mechanics.structures.api;
+package me.alek.mechanics.structures;
 
 import me.alek.mechanics.structures.Pillar;
 import me.alek.utils.Handshake;
@@ -9,6 +9,12 @@ import org.bukkit.util.Vector;
 import java.util.HashMap;
 
 public interface IStructure {
+
+    Sign getSign();
+
+    boolean isTransporter();
+
+    boolean isMechanic();
 
     HashMap<Vector, Pillar> getPillars();
 

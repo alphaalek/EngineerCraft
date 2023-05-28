@@ -6,13 +6,13 @@ import me.alek.mechanics.UnitFactory;
 import me.alek.mechanics.structures.Structure;
 import me.alek.mechanics.structures.Structures;
 import me.alek.mechanics.tracker.Tracker;
-import me.alek.mechanics.types.MConstructor;
+import me.alek.mechanics.types.Constructor;
 import me.alek.utils.Handshake;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 
-public class ConstructorProfile implements MechanicProfile<MConstructor> {
+public class ConstructorProfile implements MechanicProfile<Constructor> {
 
     @Override
     public String getName() {
@@ -45,8 +45,8 @@ public class ConstructorProfile implements MechanicProfile<MConstructor> {
     }
 
     @Override
-    public MConstructor createUnit(Hub hub, BlockFace direction, Location location, Location signLocation, Tracker<? extends Unit> tracker, int level, Handshake doneLoading) {
-        return UnitFactory.createConstructor(hub, direction, location, signLocation, (Tracker<MConstructor>) tracker, level, doneLoading);
+    public Constructor createUnit(Hub hub, BlockFace direction, Location location, Location signLocation, Tracker<? extends Unit> tracker, int level, Handshake doneLoading) {
+        return UnitFactory.createConstructor(hub, direction, location, signLocation, (Tracker<Constructor>) tracker, level, doneLoading);
     }
 
 }

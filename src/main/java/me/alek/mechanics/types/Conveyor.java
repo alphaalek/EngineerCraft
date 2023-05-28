@@ -1,19 +1,21 @@
 package me.alek.mechanics.types;
 
 import me.alek.hub.Hub;
-import me.alek.mechanics.Transporter;
+import me.alek.mechanics.transporter.SimpleTransporter;
 import me.alek.mechanics.Unit;
 import me.alek.mechanics.UnitLibrary;
 import me.alek.mechanics.profiles.UnitProfile;
+import me.alek.mechanics.transporter.TransferLocation;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
+import org.bukkit.inventory.ItemStack;
 
-public class MConveyor implements Transporter {
+public class Conveyor implements SimpleTransporter {
 
     private final Hub hub;
     private final Location location;
 
-    public MConveyor(Hub hub, Location location) {
+    public Conveyor(Hub hub, Location location) {
         this.hub = hub;
         this.location = location;
     }
@@ -39,12 +41,22 @@ public class MConveyor implements Transporter {
     }
 
     @Override
-    public void in() {
+    public TransferLocation getInputLocation() {
+        return null;
+    }
+
+    @Override
+    public TransferLocation getOutputLocation() {
+        return null;
+    }
+
+    @Override
+    public void in(ItemStack item) {
 
     }
 
     @Override
-    public void out() {
+    public void out(ItemStack item) {
 
     }
 }

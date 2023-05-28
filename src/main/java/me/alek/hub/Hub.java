@@ -1,6 +1,7 @@
 package me.alek.hub;
 
 import me.alek.exceptions.NoSuchProfile;
+import me.alek.mechanics.transporter.Transporter;
 import me.alek.mechanics.Unit;
 import me.alek.mechanics.UnitFactory;
 import me.alek.mechanics.UnitLibrary;
@@ -11,7 +12,6 @@ import me.alek.mechanics.tracker.TrackerWrapper;
 import me.alek.utils.FacingUtils;
 import me.alek.utils.Handshake;
 import me.alek.utils.Tuple2;
-import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
@@ -29,6 +29,7 @@ public class Hub {
     private final Set<UUID> members = new HashSet<>();
     private final Set<Player> onlinePlayers = new HashSet<>();
 
+    private final HashMap<Chunk, Transporter> transporters = new HashMap<>();
     private final HashMap<Chunk, Plane> structurePlanes = new HashMap<>();
     private final HashMap<Integer, Tracker<? extends Unit>> trackers = new HashMap<>();
 

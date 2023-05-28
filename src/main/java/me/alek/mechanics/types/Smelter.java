@@ -1,16 +1,17 @@
 package me.alek.mechanics.types;
 
 import me.alek.hub.Hub;
-import me.alek.mechanics.Mechanic;
 import me.alek.mechanics.Unit;
 import me.alek.mechanics.UnitLibrary;
 import me.alek.mechanics.WorkerMechanic;
 import me.alek.mechanics.profiles.UnitProfile;
+import me.alek.mechanics.transporter.SimpleTransporter;
+import me.alek.mechanics.transporter.TransferLocation;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
-public class MMiner implements WorkerMechanic {
+public class Smelter implements WorkerMechanic, SimpleTransporter {
 
     private final Hub hub;
     private final BlockFace direction;
@@ -19,7 +20,7 @@ public class MMiner implements WorkerMechanic {
     private boolean working = false;
     private int level;
 
-    public MMiner(Hub hub, BlockFace direction, Location location, Location signLocation, int level) {
+    public Smelter(Hub hub, BlockFace direction, Location location, Location signLocation, int level) {
         this.hub = hub;
         this.location = location;
         this.signLocation = signLocation;
@@ -32,6 +33,7 @@ public class MMiner implements WorkerMechanic {
 
     }
 
+    @Override
     public boolean isWorking() {
         return working;
     }
@@ -57,6 +59,11 @@ public class MMiner implements WorkerMechanic {
     }
 
     @Override
+    public UnitProfile<? extends Unit> getProfile() {
+        return UnitLibrary.UnitType.SMELTER.getProfile();
+    }
+
+    @Override
     public Location getSignLocation() {
         return signLocation;
     }
@@ -67,17 +74,22 @@ public class MMiner implements WorkerMechanic {
     }
 
     @Override
-    public UnitProfile<? extends Unit> getProfile() {
-        return UnitLibrary.UnitType.MINER.getProfile();
-    }
-
-    @Override
-    public void in() {
+    public void in(ItemStack item) {
 
     }
 
     @Override
-    public void out() {
+    public void out(ItemStack item) {
 
+    }
+
+    @Override
+    public TransferLocation getInputLocation() {
+        return null;
+    }
+
+    @Override
+    public TransferLocation getOutputLocation() {
+        return null;
     }
 }

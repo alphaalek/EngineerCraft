@@ -6,13 +6,13 @@ import me.alek.mechanics.UnitFactory;
 import me.alek.mechanics.structures.Structure;
 import me.alek.mechanics.structures.Structures;
 import me.alek.mechanics.tracker.Tracker;
-import me.alek.mechanics.types.MMiner;
+import me.alek.mechanics.types.Miner;
 import me.alek.utils.Handshake;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 
-public class MinerProfile implements MechanicProfile<MMiner> {
+public class MinerProfile implements MechanicProfile<Miner> {
 
     @Override
     public String getName() {
@@ -45,8 +45,8 @@ public class MinerProfile implements MechanicProfile<MMiner> {
     }
 
     @Override
-    public MMiner createUnit(Hub hub, BlockFace direction, Location location, Location signLocation, Tracker<? extends Unit> tracker, int level, Handshake doneLoading) {
-        return UnitFactory.createMiner(hub, direction, location, signLocation, (Tracker<MMiner>) tracker, level, doneLoading);
+    public Miner createUnit(Hub hub, BlockFace direction, Location location, Location signLocation, Tracker<? extends Unit> tracker, int level, Handshake doneLoading) {
+        return UnitFactory.createMiner(hub, direction, location, signLocation, (Tracker<Miner>) tracker, level, doneLoading);
     }
 
 }

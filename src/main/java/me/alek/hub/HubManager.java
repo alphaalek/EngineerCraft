@@ -29,15 +29,16 @@ public class HubManager {
         return hasHub(player.getUniqueId());
     }
 
-    public static Hub getHub(UUID uuid) throws NoSuchHub {
-        if (!hasHub(uuid)) {
-            throw new NoSuchHub();
-        }
+    public static Hub getHub(UUID uuid) {
         final int id = members.get(uuid);
-        return getHubById(id);
+        try {
+            return getHubById(id);
+        } catch (NoSuchHub ex) {
+            return null;
+        }
     }
 
-    public static Hub getHub(Player player) throws NoSuchHub {
+    public static Hub getHub(Player player) {
         return getHub(player.getUniqueId());
     }
 
@@ -66,10 +67,7 @@ public class HubManager {
 
     public static Hub createHub(UUID uuid) {
         if (hasHub(uuid)) {
-            try {
-                return getHub(uuid);
-            } catch (NoSuchHub ex) {
-            }
+            return getHub(uuid);
         }
         final Hub hub = new Hub(createUniqueId(), uuid);
         hubs.put(hub.getId(), hub);

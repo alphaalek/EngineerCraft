@@ -14,11 +14,7 @@ public class HubListeners implements Listener {
         if (!HubManager.hasHub(player)) {
             return null;
         }
-        try {
-            return HubManager.getHub(player);
-        } catch (NoSuchHub ex) {
-            return null;
-        }
+        return HubManager.getHub(player);
     }
 
     @EventHandler

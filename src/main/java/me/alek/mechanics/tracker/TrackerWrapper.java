@@ -12,9 +12,9 @@ public interface TrackerWrapper<U extends Unit> {
     TrackerEntry<U> addUnit(Unit unit);
 
     enum Wrappers {
-        UNIT(new UnitTracker<>()),
-        MECHANIC(new MechanicTracker<>()),
-        WORKER_MECHANIC(new WorkerMechanicTracker<>());
+        UNIT(new UnitTrackerWrapper<>()),
+        MECHANIC(new MechanicTrackerWrapper<>()),
+        WORKER_MECHANIC(new WorkerMechanicTrackerWrapper<>());
 
         private final TrackerWrapper<? extends Unit> wrapper;
 
@@ -27,7 +27,7 @@ public interface TrackerWrapper<U extends Unit> {
         }
     }
 
-    class WorkerMechanicTracker<WM extends WorkerMechanic> implements TrackerWrapper<WM> {
+    class WorkerMechanicTrackerWrapper<WM extends WorkerMechanic> implements TrackerWrapper<WM> {
 
         @Override
         public TrackerEntry<WM> addUnit(Unit unit) {
@@ -36,7 +36,7 @@ public interface TrackerWrapper<U extends Unit> {
 
     }
 
-    class MechanicTracker<M extends Mechanic> implements TrackerWrapper<M> {
+    class MechanicTrackerWrapper<M extends Mechanic> implements TrackerWrapper<M> {
 
         @Override
         public TrackerEntry<M> addUnit(Unit unit) {
@@ -45,7 +45,7 @@ public interface TrackerWrapper<U extends Unit> {
 
     }
 
-    class UnitTracker<U extends Unit> implements TrackerWrapper<U> {
+    class UnitTrackerWrapper<U extends Unit> implements TrackerWrapper<U> {
 
         @Override
         public TrackerEntry<U> addUnit(Unit unit) {

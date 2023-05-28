@@ -1,6 +1,8 @@
 package me.alek.mechanics;
 
-public interface WorkerMechanic extends Mechanic, Transporter {
+import me.alek.mechanics.transporter.Transporter;
+
+public interface WorkerMechanic extends Mechanic {
 
     void tick();
 

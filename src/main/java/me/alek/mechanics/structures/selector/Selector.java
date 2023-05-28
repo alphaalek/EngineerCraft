@@ -23,11 +23,7 @@ public class Selector<U extends Unit> {
         this.player = player;
         this.profile = profile;
 
-        try {
-            this.hub = HubManager.getHub(player);
-        } catch (NoSuchHub ex) {
-            return;
-        }
+        this.hub = HubManager.getHub(player);
 
         SelectorManager.addSelector(player, this);
         showItems();

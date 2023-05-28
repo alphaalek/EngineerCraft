@@ -6,13 +6,13 @@ import me.alek.mechanics.UnitFactory;
 import me.alek.mechanics.structures.Structure;
 import me.alek.mechanics.structures.Structures;
 import me.alek.mechanics.tracker.Tracker;
-import me.alek.mechanics.types.MSmelter;
+import me.alek.mechanics.types.Smelter;
 import me.alek.utils.Handshake;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 
-public class SmelterProfile implements MechanicProfile<MSmelter> {
+public class SmelterProfile implements MechanicProfile<Smelter> {
 
     @Override
     public String getName() {
@@ -45,8 +45,8 @@ public class SmelterProfile implements MechanicProfile<MSmelter> {
     }
 
     @Override
-    public MSmelter createUnit(Hub hub, BlockFace direction, Location location, Location signLocation, Tracker<? extends Unit> tracker, int level, Handshake doneLoading) {
-        return UnitFactory.createSmelter(hub, direction, location, signLocation, (Tracker<MSmelter>) tracker, level, doneLoading);
+    public Smelter createUnit(Hub hub, BlockFace direction, Location location, Location signLocation, Tracker<? extends Unit> tracker, int level, Handshake doneLoading) {
+        return UnitFactory.createSmelter(hub, direction, location, signLocation, (Tracker<Smelter>) tracker, level, doneLoading);
     }
 
 }

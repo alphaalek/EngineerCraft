@@ -1,7 +1,7 @@
 package me.alek.mechanics.profiles;
 
 import me.alek.mechanics.Unit;
-import me.alek.mechanics.structures.api.IStructure;
+import me.alek.mechanics.structures.IStructure;
 import org.bukkit.Material;
 
 public interface UnitProfile<U extends Unit> {
