@@ -44,9 +44,6 @@ public class SmelterProfile implements MechanicProfile<Smelter> {
         return Material.FURNACE;
     }
 
-    @Override
-    public Smelter createUnit(Hub hub, BlockFace direction, Location location, Location signLocation, Tracker<? extends Unit> tracker, int level, Handshake doneLoading) {
-        return UnitFactory.createSmelter(hub, direction, location, signLocation, (Tracker<Smelter>) tracker, level, doneLoading);
-    }
+
 
 }

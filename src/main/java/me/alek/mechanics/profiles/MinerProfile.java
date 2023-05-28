@@ -44,9 +44,5 @@ public class MinerProfile implements MechanicProfile<Miner> {
         return Material.HOPPER;
     }
 
-    @Override
-    public Miner createUnit(Hub hub, BlockFace direction, Location location, Location signLocation, Tracker<? extends Unit> tracker, int level, Handshake doneLoading) {
-        return UnitFactory.createMiner(hub, direction, location, signLocation, (Tracker<Miner>) tracker, level, doneLoading);
-    }
 
 }

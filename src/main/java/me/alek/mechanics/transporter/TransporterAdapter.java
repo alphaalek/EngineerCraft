@@ -6,9 +6,9 @@ import java.util.List;
 
 public class TransporterAdapter {
 
-    public static List<TransferLocation> getInputLocations(Transporter transporter) {
+    public static List<TransferEndpoint> getInputLocations(Transporter transporter) {
         if (transporter instanceof SimpleTransporter) {
-            return Collections.singletonList(((SimpleTransporter) transporter).getInputLocation());
+            return Collections.singletonList(((SimpleTransporter) transporter).getInputEndpoint());
         }
         else if (transporter instanceof MultipleOutputTransporter) {
             return Collections.singletonList(((MultipleOutputTransporter)transporter).getInputLocation());
@@ -21,9 +21,9 @@ public class TransporterAdapter {
         }
     }
 
-    public static List<TransferLocation> getOutputLocations(Transporter transporter) {
+    public static List<TransferEndpoint> getOutputLocations(Transporter transporter) {
         if (transporter instanceof SimpleTransporter) {
-            return Collections.singletonList(((SimpleTransporter) transporter).getOutputLocation());
+            return Collections.singletonList(((SimpleTransporter) transporter).getOutputEndpoint());
         }
         else if (transporter instanceof MultipleOutputTransporter) {
             return ((MultipleOutputTransporter)transporter).getOutputLocations();

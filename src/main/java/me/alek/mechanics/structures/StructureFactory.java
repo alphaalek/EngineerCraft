@@ -11,6 +11,7 @@ public class StructureFactory {
 
     private static final Structure commonWorkerMechanicElements = new Structure(){{
         setMechanic(true);
+        setTransporter(true);
         set(0, 1, new Pillar()
                 .add(2, Material.IRON_BARDING));
         set(1, 0, new Pillar()
@@ -20,6 +21,8 @@ public class StructureFactory {
         set(0, -1, new Pillar()
                 .addCallback(1, Material.LEVER, BlockFace.NORTH, Lever::new));
         setSign(0, 2, -1, BlockFace.SOUTH, true);
+        addInput(-1, 1, 0, BlockFace.WEST);
+        addOutput(1, 1, 0, BlockFace.EAST);
     }};
 
     @Contract(" -> new")
@@ -73,6 +76,8 @@ public class StructureFactory {
                     .add(0, Material.COBBLESTONE)
                     .addCallback(1, Material.RAILS, BlockFace.EAST, Rails::new)
             );
+            addInput(-1, 1, 0, BlockFace.WEST);
+            addOutput(1, 1, 0, BlockFace.EAST);
         }};
     }
 
@@ -84,6 +89,8 @@ public class StructureFactory {
                     .add(0, Material.STONE, (byte) 5)
                     .addCallback(1, Material.RAILS, BlockFace.EAST, Rails::new)
             );
+            addInput(-1, 1, 0, BlockFace.WEST);
+            addOutput(1, 1, 0, BlockFace.EAST);
         }};
     }
 }

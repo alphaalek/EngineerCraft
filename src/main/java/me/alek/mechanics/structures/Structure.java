@@ -1,9 +1,10 @@
 package me.alek.mechanics.structures;
 
 import me.alek.EngineerCraft;
-import me.alek.mechanics.transporter.TransferLocation;
+import me.alek.mechanics.transporter.RelativeTransferLocation;
 import me.alek.utils.FacingUtils;
 import me.alek.utils.Handshake;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -20,8 +21,8 @@ public class Structure implements IStructure {
     private boolean isMechanic;
 
     private Sign sign = new Sign(new Vector(0, 0, 0), BlockFace.NORTH);
-    private List<TransferLocation> inputLocations = new ArrayList<>();
-    private List<TransferLocation> outputLocations = new ArrayList<>();
+    private List<RelativeTransferLocation> inputLocations = new ArrayList<>();
+    private List<RelativeTransferLocation> outputLocations = new ArrayList<>();
 
     private final HashMap<Vector, Pillar> pillars = new HashMap<>();
     private final HashMap<Integer, Set<Integer>> knownOffsets = new HashMap<>();
@@ -52,37 +53,33 @@ public class Structure implements IStructure {
     }
 
     public void combineStructure(@NotNull IStructure structure) {
+        for (Map.Entry<Vector, Pillar> entry : structure.getPillars().entrySet()) {
+            boolean hasSameVector = false;
+            for (Map.Entry<Vector, Pillar> samePillarEntry : pillars.entrySet()) {
+                if (!compareVector(entry.getKey(), samePillarEntry.getKey())) {
+                    continue;
+                }
+                hasSameVector = true;
+                for (Map.Entry<Integer, Pillar.BlockData> blockEntry : entry.getValue().getBlocks().entrySet()) {
+                    samePillarEntry.getValue().addAtIndex(blockEntry.getKey(), blockEntry.getValue());
+                }
 
-        synchronized (pillars) {
-            synchronized (structure.getPillars()) {
-
-                for (Map.Entry<Vector, Pillar> entry : structure.getPillars().entrySet()) {
-                    boolean hasSameVector = false;
-                    for (Map.Entry<Vector, Pillar> samePillarEntry : pillars.entrySet()) {
-                        if (!compareVector(entry.getKey(), samePillarEntry.getKey())) {
-                            continue;
-                        }
-                        hasSameVector = true;
-                        for (Map.Entry<Integer, Pillar.BlockData> blockEntry : entry.getValue().getBlocks().entrySet()) {
-                            samePillarEntry.getValue().addAtIndex(blockEntry.getKey(), blockEntry.getValue());
-                        }
-
-                        for (Map.Entry<Integer, Pillar.BlockData> callbackBlockEntry : entry.getValue().getCallbackBlocks().entrySet()) {
-                            samePillarEntry.getValue().addAtIndex(callbackBlockEntry.getKey(), callbackBlockEntry.getValue());
-                        }
-                    }
-                    if (!hasSameVector) {
-                        pillars.putIfAbsent(entry.getKey(), entry.getValue());
-                    }
+                for (Map.Entry<Integer, Pillar.BlockData> callbackBlockEntry : entry.getValue().getCallbackBlocks().entrySet()) {
+                    samePillarEntry.getValue().addAtIndex(callbackBlockEntry.getKey(), callbackBlockEntry.getValue());
                 }
             }
-        }
-
-        if (isMechanic) {
-            if (structure.isMechanic()) {
-                sign = structure.getSign();
-                changePillars();
+            if (!hasSameVector) {
+                pillars.putIfAbsent(entry.getKey(), entry.getValue());
             }
+        }
+        if (isMechanic && structure.isMechanic()) {
+            sign = structure.getSign();
+            changePillars();
+        }
+        if (isTransporter && structure.isTransporter()) {
+            Bukkit.broadcastMessage("INPUT AND OUTPUT");
+            inputLocations.addAll(structure.getInputs());
+            outputLocations.addAll(structure.getOutputs());
         }
     }
 
@@ -135,17 +132,6 @@ public class Structure implements IStructure {
         }
     }
 
-    public Sign getSign() {
-        return sign;
-    }
-
-    public void setSign(int x, int y, int z, BlockFace blockFace, boolean changePillars) {
-        sign = new Sign(new Vector(x, y, z), blockFace);
-        if (changePillars) {
-            changePillars();
-        }
-    }
-
     public void changePillars() {
         final Vector vector = sign.getVector();
         Vector sameVector = null;
@@ -162,6 +148,35 @@ public class Structure implements IStructure {
             final Pillar signPillar = new Pillar().addCallback(vector.getBlockY(), Material.WALL_SIGN, sign.getBlockFace(), org.bukkit.material.Sign::new);
             set(vector.getBlockX(), vector.getBlockZ(), signPillar);
         }
+    }
+
+    public Sign getSign() {
+        return sign;
+    }
+
+    public void setSign(int x, int y, int z, BlockFace blockFace, boolean changePillars) {
+        sign = new Sign(new Vector(x, y, z), blockFace);
+        if (changePillars) {
+            changePillars();
+        }
+    }
+
+    @Override
+    public List<RelativeTransferLocation> getInputs() {
+        return inputLocations;
+    }
+
+    @Override
+    public List<RelativeTransferLocation> getOutputs() {
+        return outputLocations;
+    }
+
+    public void addInput(int x, int y, int z, BlockFace direction) {
+        inputLocations.add(new RelativeTransferLocation(new Vector(x, y, z), direction));
+    }
+
+    public void addOutput(int x, int y, int z, BlockFace direction) {
+        outputLocations.add(new RelativeTransferLocation(new Vector(x, y, z), direction));
     }
 
     public void setTransporter(boolean isTransporter) {

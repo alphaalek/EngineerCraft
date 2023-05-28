@@ -10,7 +10,7 @@ import me.alek.mechanics.types.Conveyor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 
-public class ConveyorProfile implements BareUnitProfile<Conveyor> {
+public class ConveyorProfile implements UnitProfile<Conveyor> {
 
     @Override
     public String getName() {
@@ -42,8 +42,4 @@ public class ConveyorProfile implements BareUnitProfile<Conveyor> {
         return Material.DAYLIGHT_DETECTOR;
     }
 
-    @Override
-    public Conveyor createUnit(Hub hub, Location location, Tracker<? extends Unit> tracker) {
-        return UnitFactory.createConveyor(hub, location, (Tracker<Conveyor>) tracker);
-    }
 }

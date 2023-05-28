@@ -6,7 +6,7 @@ import me.alek.mechanics.UnitLibrary;
 import me.alek.mechanics.WorkerMechanic;
 import me.alek.mechanics.profiles.UnitProfile;
 import me.alek.mechanics.transporter.SimpleTransporter;
-import me.alek.mechanics.transporter.TransferLocation;
+import me.alek.mechanics.transporter.TransferEndpoint;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.inventory.ItemStack;
@@ -18,14 +18,24 @@ public class Constructor implements WorkerMechanic, SimpleTransporter {
     private final Location location;
     private final BlockFace direction;
     private final Location signLocation;
+    private final TransferEndpoint input;
+    private final TransferEndpoint output;
     private boolean working = false;
     private int level;
 
-    public Constructor(Hub hub, BlockFace direction, Location location, Location signLocation, int level) {
+    public Constructor(Hub hub,
+                       BlockFace direction,
+                       Location location,
+                       Location signLocation,
+                       TransferEndpoint input,
+                       TransferEndpoint output,
+                       int level) {
         this.hub = hub;
         this.location = location;
         this.signLocation = signLocation;
         this.direction = direction;
+        this.input = input;
+        this.output = output;
         this.level = level;
     }
 
@@ -85,12 +95,12 @@ public class Constructor implements WorkerMechanic, SimpleTransporter {
     }
 
     @Override
-    public TransferLocation getInputLocation() {
-        return null;
+    public TransferEndpoint getInputEndpoint() {
+        return input;
     }
 
     @Override
-    public TransferLocation getOutputLocation() {
-        return null;
+    public TransferEndpoint getOutputEndpoint() {
+        return output;
     }
 }

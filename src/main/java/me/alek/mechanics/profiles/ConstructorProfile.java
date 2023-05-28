@@ -44,9 +44,4 @@ public class ConstructorProfile implements MechanicProfile<Constructor> {
         return Material.WORKBENCH;
     }
 
-    @Override
-    public Constructor createUnit(Hub hub, BlockFace direction, Location location, Location signLocation, Tracker<? extends Unit> tracker, int level, Handshake doneLoading) {
-        return UnitFactory.createConstructor(hub, direction, location, signLocation, (Tracker<Constructor>) tracker, level, doneLoading);
-    }
-
 }

@@ -10,5 +10,5 @@ import org.bukkit.block.BlockFace;
 
 public interface MechanicProfile<M extends Mechanic> extends UnitProfile<M> {
 
-    M createUnit(Hub hub, BlockFace direction, Location location, Location signLocation, Tracker<? extends Unit> tracker, int level, Handshake doneLoading);
+
 }
