@@ -18,6 +18,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
@@ -46,7 +47,7 @@ public class SelectorManager {
         return playerSelectorMap.containsKey(player);
     }
 
-    public static ItemStack applySelectorTag(ItemStack item) {
+    public static @NotNull ItemStack applySelectorTag(ItemStack item) {
         net.minecraft.server.v1_8_R3.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
 
         NBTTagCompound compound = (nmsItem.hasTag()) ? nmsItem.getTag() : new NBTTagCompound();
@@ -104,7 +105,7 @@ public class SelectorManager {
     @EventHandler
     public void onDrop(PlayerDropItemEvent event) {
         final Player player = event.getPlayer();
-        if (!HubManager.hasHub(player) ||SelectorManager.hasSelector(player)) {
+        if (!HubManager.hasHub(player) || !SelectorManager.hasSelector(player)) {
             return;
         }
         event.setCancelled(true);
@@ -114,7 +115,7 @@ public class SelectorManager {
     @EventHandler
     public void onClick(InventoryClickEvent event) {
         final Player player = (Player) event.getWhoClicked();
-        if (!HubManager.hasHub(player) ||SelectorManager.hasSelector(player)) {
+        if (!HubManager.hasHub(player) || !SelectorManager.hasSelector(player)) {
             return;
         }
         event.setCancelled(true);

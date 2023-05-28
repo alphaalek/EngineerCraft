@@ -1,13 +1,14 @@
 package me.alek.mechanics.structures;
 
 import me.alek.EngineerCraft;
+import me.alek.mechanics.structures.api.IStructure;
 import me.alek.utils.FacingUtils;
 import me.alek.utils.Handshake;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,14 +38,38 @@ public class Structure implements IStructure {
     }
 
     @Override
-    public void load(Location location, BlockFace direction, Handshake doneLoading) {
+    public void load(@NotNull Location location, BlockFace direction, Handshake doneLoading) {
         new StructureLoader(this, location.getBlock().getLocation(), direction, doneLoading).load();
     }
 
-    public void combineStructure(IStructure structure) {
+    private boolean compareVector(@NotNull Vector vector1, @NotNull Vector vector2) {
+        return vector1.getBlockX() == vector2.getBlockX() && vector1.getBlockZ() == vector2.getBlockZ() && vector1.getBlockY() == vector2.getBlockY();
+    }
+
+    public void combineStructure(@NotNull IStructure structure) {
+
         synchronized (pillars) {
-            for (Map.Entry<Vector, Pillar> entry : structure.getPillars().entrySet()) {
-                pillars.putIfAbsent(entry.getKey(), entry.getValue());
+            synchronized (structure.getPillars()) {
+
+                for (Map.Entry<Vector, Pillar> entry : structure.getPillars().entrySet()) {
+                    boolean hasSameVector = false;
+                    for (Map.Entry<Vector, Pillar> samePillarEntry : pillars.entrySet()) {
+                        if (!compareVector(entry.getKey(), samePillarEntry.getKey())) {
+                            continue;
+                        }
+                        hasSameVector = true;
+                        for (Map.Entry<Integer, Pillar.BlockData> blockEntry : entry.getValue().getBlocks().entrySet()) {
+                            samePillarEntry.getValue().addAtIndex(blockEntry.getKey(), blockEntry.getValue());
+                        }
+
+                        for (Map.Entry<Integer, Pillar.BlockData> callbackBlockEntry : entry.getValue().getCallbackBlocks().entrySet()) {
+                            samePillarEntry.getValue().addAtIndex(callbackBlockEntry.getKey(), callbackBlockEntry.getValue());
+                        }
+                    }
+                    if (!hasSameVector) {
+                        pillars.putIfAbsent(entry.getKey(), entry.getValue());
+                    }
+                }
             }
         }
     }
@@ -84,7 +109,7 @@ public class Structure implements IStructure {
                     this.callbackBlocks.put(entry.getKey(), callbackBlocks);
                 }
             }
-            new BukkitRunnable() {
+            new BukkitRunnable() { // synchronously
 
                 @Override
                 public void run() {

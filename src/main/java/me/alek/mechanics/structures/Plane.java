@@ -1,6 +1,7 @@
 package me.alek.mechanics.structures;
 
 import me.alek.utils.Tuple2;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -21,7 +22,7 @@ public class Plane {
         direct.get(x).add(y);
     }
 
-    public void addPoint(Tuple2<Integer, Integer> tuple) {
+    public void addPoint(@NotNull Tuple2<Integer, Integer> tuple) {
         addPoint(tuple.getParam1(), tuple.getParam2());
     }
 
@@ -32,7 +33,7 @@ public class Plane {
         }
     }
 
-    public boolean intersect(Plane plane) {
+    public boolean intersect(@NotNull Plane plane) {
         for (Map.Entry<Integer, TreeSet<Integer>> entryDirect : plane.getDirect().entrySet()) {
             if (!this.direct.containsKey(entryDirect.getKey())) {
                 continue;

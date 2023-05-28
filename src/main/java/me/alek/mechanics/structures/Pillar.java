@@ -3,6 +3,7 @@ package me.alek.mechanics.structures;
 import me.alek.utils.FacingUtils;
 import net.minecraft.server.v1_8_R3.BlockPosition;
 import net.minecraft.server.v1_8_R3.EnumDirection;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -13,7 +14,14 @@ import org.bukkit.craftbukkit.v1_8_R3.util.CraftMagicNumbers;
 import org.bukkit.material.Directional;
 import org.bukkit.material.Lever;
 import org.bukkit.material.MaterialData;
+import org.bukkit.material.Rails;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.BiConsumer;
@@ -23,18 +31,18 @@ import java.util.function.Supplier;
 public class Pillar {
 
     private final Map<Integer, BlockData> blocks = new TreeMap<>();
-    private final Map<Integer, BlockData> vulnerableBlocks = new TreeMap<>();
+    private final Map<Integer, BlockData> callbackBlocks = new TreeMap<>();
     private int currentYOffset = 0;
 
-    public Map<Integer, BlockData> getVulnerableBlocks() {
-        return vulnerableBlocks;
+    public Map<Integer, BlockData> getCallbackBlocks() {
+        return callbackBlocks;
     }
 
     public Map<Integer, BlockData> getBlocks() {
         return blocks;
     }
 
-    private static Directional cast(Class<?> caster, Block block, Class<?> originClass) {
+    private static @Nullable Directional cast(Class<?> caster, Block block, Class<?> originClass) {
         Class<?> clazz = originClass;
         while (clazz != null) {
 
@@ -46,7 +54,7 @@ public class Pillar {
         return null;
     }
 
-    private static void forcePhysicsUpdate(Block block) {
+    private static void forcePhysicsUpdate(@NotNull Block block) {
         final net.minecraft.server.v1_8_R3.World world = ((CraftWorld)block.getWorld()).getHandle();
         final BlockPosition blockPosition = new BlockPosition(block.getX(), block.getY(), block.getZ());
         final net.minecraft.server.v1_8_R3.Block nmsBlock = CraftMagicNumbers.getBlock(block);
@@ -58,7 +66,8 @@ public class Pillar {
 
     private static class BlockDataBuilder {
 
-        private static BlockDataBuilder of(Material material) {
+        @Contract(value = "_ -> new", pure = true)
+        private static @NotNull BlockDataBuilder of(Material material) {
             return new BlockDataBuilder(material);
         }
 
@@ -73,35 +82,69 @@ public class Pillar {
             return this;
         }
 
-        private BlockDataBuilder setDirectionConsumer(BlockFace direction, boolean callback, Supplier<Directional> supplier) {
+        private void updateDirectional(
+                Block block,
+                boolean callback,
+                Function<BlockFace, BlockFace> blockFaceRotation,
+                BlockFace direction,
+                Supplier<?> supplier) {
+            Directional directional;
+            if (callback) {
+                directional = (Directional) supplier.get();
+                if (directional instanceof Lever) {
+                    block.setData(FacingUtils.getLeverBlockFaceData(blockFaceRotation.apply(direction)));
+                    block.getState().update();
+                    return;
+                }
+                if (directional instanceof org.bukkit.material.Sign) {
+                    block.setData(FacingUtils.getSignBlockFaceData(blockFaceRotation.apply(direction)));
+                    block.getState().update();
+                    return;
+                }
+            } else {
+                directional = cast(Directional.class, block, block.getType().getData());
+            }
+            if (directional == null) {
+                return;
+            }
+            directional.setFacingDirection(blockFaceRotation.apply(direction));
+            block.setData(((MaterialData) directional).getData());
+        }
+
+        private void updateOther(
+                Block block,
+                Object object,
+                Function<BlockFace, BlockFace> blockFaceRotation,
+                BlockFace direction) {
+            Method method;
+            try {
+                if (object instanceof Rails) {
+                    method = object.getClass().getMethod("setDirection", BlockFace.class, boolean.class);
+                    method.invoke(object, blockFaceRotation.apply(direction), false);
+                } else {
+                    method = object.getClass().getDeclaredMethod("setFacingDirection", BlockFace.class);
+                    method.invoke(object, blockFaceRotation.apply(direction));
+                }
+            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException ex) {
+                return;
+            }
+            block.setData(((MaterialData)object).getData());
+        }
+
+        private BlockDataBuilder setDirectionConsumer(BlockFace direction, boolean callback, Supplier<?> supplier) {
             blockData.setDirectionConsumer((blockFaceRotation, block) -> {
                 if (direction == null) {
                     return;
                 }
-                final Directional directional;
-                if (callback) {
-                    directional = supplier.get();
-                    if (directional instanceof Lever) {
-                        block.setData(FacingUtils.getLeverBlockFaceData(blockFaceRotation.apply(direction)));
-                        block.getState().update();
-                        return;
-                    }
-                    if (directional instanceof org.bukkit.material.Sign) {
-                        block.setData(FacingUtils.getSignBlockFaceData(blockFaceRotation.apply(direction)));
-                        block.getState().update();
-                        return;
-                    }
+                final Object object = supplier.get();
+                if (object instanceof Directional) {
+                    updateDirectional(block, callback, blockFaceRotation, direction, supplier);
+                } else if (object instanceof MaterialData) {
+                    updateOther(block, object, blockFaceRotation, direction);
                 } else {
-                    directional = cast(Directional.class, block, block.getType().getData());
-                }
-                if (directional == null) {
                     return;
                 }
-                directional.setFacingDirection(blockFaceRotation.apply(direction));
-
-                block.setData(((MaterialData) directional).getData());
                 block.getState().update();
-
                 if (block.getType() == Material.REDSTONE_TORCH_OFF) {
                     forcePhysicsUpdate(block);
                 }
@@ -119,13 +162,25 @@ public class Pillar {
         }
     }
 
-    public Pillar add(int delta, BlockData blockData) {
+    public Pillar add(int delta, @NotNull BlockData blockData) {
         currentYOffset += delta;
 
         if (blockData.isDirectionVulnerable()) {
-            vulnerableBlocks.put(currentYOffset, blockData);
-        } else {
+            callbackBlocks.put(currentYOffset, blockData);
+        }
+        else
+        {
             blocks.put(currentYOffset, blockData);
+        }
+        return this;
+    }
+
+    public Pillar addAtIndex(int key, @NotNull BlockData blockData) {
+        if (blockData.isDirectionVulnerable()) {
+            callbackBlocks.put(key, blockData);
+        }
+        else {
+            blocks.put(key, blockData);
         }
         return this;
     }
@@ -135,21 +190,21 @@ public class Pillar {
         return this;
     }
 
+    public Map<Integer, BlockData> loadBlocks(final Location location) {
+        return loadBlocks((blockFace) -> blockFace, location);
+    }
+
     public Map<Integer, BlockData> loadBlocks(Function<BlockFace, BlockFace> blockFaceRotation, final Location location) {
         loadBlocks(blockFaceRotation, location, blocks);
 
-        return vulnerableBlocks;
-    }
-
-    public Map<Integer, BlockData> loadBlocks(final Location location) {
-        return loadBlocks((blockFace) -> blockFace, location);
+        return callbackBlocks;
     }
 
     public static void loadBlocks(final Location location, Map<Integer, BlockData> blocks) {
         loadBlocks((blockFace) -> blockFace, location, blocks);
     }
 
-    public static void loadBlocks(Function<BlockFace, BlockFace> blockFaceRotation, final Location location, Map<Integer, BlockData> blocks) {
+    public static void loadBlocks(Function<BlockFace, BlockFace> blockFaceRotation, final @NotNull Location location, Map<Integer, BlockData> blocks) {
         final World world = location.getWorld();
         if (world == null) {
             return;
@@ -195,7 +250,7 @@ public class Pillar {
         return add(delta, BlockDataBuilder.of(material).setData(data).setDirectionVulnerable(true).build());
     }
 
-    public Pillar addCallback(int delta, Material material, BlockFace direction, Supplier<Directional> directionalSupplier) {
+    public Pillar addCallback(int delta, Material material, BlockFace direction, Supplier<?> directionalSupplier) {
         return add(delta, BlockDataBuilder.of(material).setDirectionConsumer(direction, true, directionalSupplier).setDirectionVulnerable(true).build());
     }
 

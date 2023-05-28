@@ -1,16 +1,13 @@
 package me.alek.mechanics.profiles;
 
-import me.alek.mechanics.structures.IStructure;
+import me.alek.mechanics.structures.api.IStructure;
 import me.alek.mechanics.structures.Structures;
-import org.bukkit.Bukkit;
 
 public class ConveyorPoleProfile extends ConveyorProfile {
-
     @Override
     public String getName() {
         return "Conveyor Pole";
     }
-
     @Override
     public IStructure getStructure() {
         return Structures.CONVEYOR_POLE.getStructure();

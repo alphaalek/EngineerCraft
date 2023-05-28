@@ -1,9 +1,11 @@
 package me.alek.mechanics.structures;
 
-import org.bukkit.Bukkit;
+import me.alek.mechanics.structures.api.IMechanicStructure;
+import me.alek.mechanics.structures.api.IStructure;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 public class MechanicStructure extends Structure implements IMechanicStructure {
 
@@ -31,7 +33,7 @@ public class MechanicStructure extends Structure implements IMechanicStructure {
         super.combineStructure(structure);
     }
 
-    private boolean compareVector(Vector vector1, Vector vector2) {
+    private boolean compareVector(@NotNull Vector vector1, @NotNull Vector vector2) {
         return vector1.getBlockX() == vector2.getBlockX() && vector1.getBlockZ() == vector2.getBlockZ();
     }
 
